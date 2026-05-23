@@ -14,12 +14,12 @@ func main() {
 	}
 	defer srv.Close()
 
-	port := ":45800"
+	addr := "0.0.0.0:45800"
 	log.Printf("Starting Mercury Shortener Service with Fiber...")
-	log.Printf("Dashboard accessible at http://localhost%s", port)
-	log.Printf("Shortlink format: http://mercury.<domain>%s/<key>", port)
+	log.Printf("Dashboard accessible at http://localhost:45800")
+	log.Printf("Shortlink format: http://mercury.<domain>:45800/<key>")
 
-	if err := srv.Start(port); err != nil {
+	if err := srv.Start(addr); err != nil {
 		log.Fatalf("Server stopped: %v", err)
 	}
 }
