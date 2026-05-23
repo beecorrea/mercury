@@ -497,10 +497,8 @@
         function renderLinks(links) {
             // Keep the empty state element in memory
             const items = (links || []).map(link => {
-                const hasPort = link.domain.includes(':');
-                const shortUrl = hasPort
-                    ? `http://mercury.${link.domain}/${link.key}`
-                    : `http://mercury.${link.domain}:${window.location.port || '45800'}/${link.key}`;
+                const cleanDomain = link.domain.split(':')[0];
+                const shortUrl = `http://mercury.${cleanDomain}/${link.key}`;
                 return `
                     <div class="link-item">
                         <div class="link-info">
