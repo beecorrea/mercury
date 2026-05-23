@@ -99,4 +99,21 @@ func TestServer(t *testing.T) {
 	if !bytes.Contains(body, []byte("Mercury")) {
 		t.Error("expected served dashboard to contain 'Mercury'")
 	}
+
+	// 6. Test Mercury Host serves Dashboard on empty key (root path)
+	req = httptest.NewRequest("GET", "/", nil)
+	req.Host = "mercury.local"
+	resp, err = srv.App.Test(req)
+	if err != nil {
+		t.Fatalf("failed to run request: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected main page on mercury subdomain to return 200 OK, got %d", resp.StatusCode)
+	}
+	body, _ = io.ReadAll(resp.Body)
+	if !bytes.Contains(body, []byte("Mercury")) {
+		t.Error("expected served dashboard to contain 'Mercury'")
+	}
 }

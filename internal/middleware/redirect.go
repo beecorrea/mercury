@@ -32,12 +32,12 @@ func NewRedirectMiddleware(svc *service.RedirectService) fiber.Handler {
 					ctx.Set("Cache-Control", "no-store, no-cache, must-revalidate")
 					return ctx.Redirect(shortlink.URL, fiber.StatusFound)
 				}
-			}
 
-			// Key not found - display premium 404 page
-			ctx.Status(fiber.StatusNotFound)
-			ctx.Set("Content-Type", "text/html; charset=utf-8")
-			return ctx.Send(templates.NotFoundHTML)
+				// Key not found - display premium 404 page
+				ctx.Status(fiber.StatusNotFound)
+				ctx.Set("Content-Type", "text/html; charset=utf-8")
+				return ctx.Send(templates.NotFoundHTML)
+			}
 		}
 
 		return ctx.Next()
