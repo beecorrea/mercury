@@ -31,5 +31,5 @@ go.work.sum
 # .idea/
 # .vscode/
 
-mercury_srv
+mercury
 mercury.db
