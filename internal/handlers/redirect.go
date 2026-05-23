@@ -8,7 +8,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewRedirectMiddleware(db *database.DB) fiber.Handler {
+func NewRedirectMiddleware(db *database.RedirectDB) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		host := c.Hostname()
 

@@ -10,10 +10,10 @@ import (
 )
 
 type AdminHandler struct {
-	DB *database.DB
+	DB *database.RedirectDB
 }
 
-func NewAdminHandler(db *database.DB) *AdminHandler {
+func NewAdminHandler(db *database.RedirectDB) *AdminHandler {
 	return &AdminHandler{DB: db}
 }
 

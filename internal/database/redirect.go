@@ -7,11 +7,11 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type DB struct {
-	*sql.DB
+type RedirectDB struct {
+	db *sql.DB
 }
 
-func New(dbPath string) (*DB, error) {
+func New(dbPath string) (*RedirectDB, error) {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
@@ -25,7 +25,11 @@ func New(dbPath string) (*DB, error) {
 		return nil, err
 	}
 
-	return &DB{db}, nil
+	return &RedirectDB{db: db}, nil
+}
+
+func (r *RedirectDB) Close() error {
+	return r.db.Close()
 }
 
 func migrate(db *sql.DB) error {
@@ -33,13 +37,13 @@ func migrate(db *sql.DB) error {
 	return err
 }
 
-func (db *DB) CreateLink(key, url, domain string) error {
-	_, err := db.Exec(queryInsertLink, key, url, domain)
+func (r *RedirectDB) CreateLink(key, url, domain string) error {
+	_, err := r.db.Exec(queryInsertLink, key, url, domain)
 	return err
 }
 
-func (db *DB) GetLinkByKey(key string) (*structs.Link, error) {
-	row := db.QueryRow(queryGetLinkByKey, key)
+func (r *RedirectDB) GetLinkByKey(key string) (*structs.Link, error) {
+	row := r.db.QueryRow(queryGetLinkByKey, key)
 
 	var link structs.Link
 	err := row.Scan(&link.Key, &link.URL, &link.Domain, &link.CreatedAt)
@@ -51,8 +55,8 @@ func (db *DB) GetLinkByKey(key string) (*structs.Link, error) {
 	return &link, nil
 }
 
-func (db *DB) ListLinks() ([]structs.Link, error) {
-	rows, err := db.Query(queryListLinks)
+func (r *RedirectDB) ListLinks() ([]structs.Link, error) {
+	rows, err := r.db.Query(queryListLinks)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +73,7 @@ func (db *DB) ListLinks() ([]structs.Link, error) {
 	return links, nil
 }
 
-func (db *DB) DeleteLink(key string) error {
-	_, err := db.Exec(queryDeleteLink, key)
+func (r *RedirectDB) DeleteLink(key string) error {
+	_, err := r.db.Exec(queryDeleteLink, key)
 	return err
 }
