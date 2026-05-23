@@ -178,6 +178,25 @@ All struct constructors are standardized to follow the `New<StructName>` naming 
    * Dashboard: `http://localhost:45800`
    * Target shortlink redirects occur when hostnames start with `mercury.`, such as `http://mercury.localhost:45800/key`.
 
+### Running with Docker
+
+You can build and run the application in a secure, minimal container. To persist the SQLite database across container restarts and recreations, mount a host volume directory and specify the database path via the `MERCURY_DB_PATH` environment variable:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t mercury .
+   ```
+
+2. Run the container with a volume mount:
+   ```bash
+   docker run -d \
+     -p 45800:45800 \
+     -v /path/to/local/data:/data \
+     -e MERCURY_DB_PATH=/data/mercury.db \
+     --name mercury \
+     mercury
+   ```
+
 ### Running Tests
 Unit and integration test coverage can be verified by running:
 ```bash

@@ -2,12 +2,16 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/beecorrea/shortlinks/internal/server"
 )
 
 func main() {
-	dbPath := "mercury.db"
+	dbPath := os.Getenv("MERCURY_DB_PATH")
+	if dbPath == "" {
+		dbPath = "mercury.db"
+	}
 	srv, err := server.NewServer(dbPath)
 	if err != nil {
 		log.Fatalf("Failed to initialize server: %v", err)
