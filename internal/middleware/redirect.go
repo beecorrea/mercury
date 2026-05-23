@@ -13,7 +13,7 @@ func NewRedirectMiddleware(svc *service.RedirectService) fiber.Handler {
 		host := ctx.Hostname()
 
 		// Check if Host starts with "mercury."
-		if strings.HasPrefix(host, "mercury.") {
+		if host == "mercury" || strings.HasPrefix(host, "mercury.") {
 			path := ctx.Path()
 			if strings.HasPrefix(path, "/api/") {
 				return ctx.Next()
