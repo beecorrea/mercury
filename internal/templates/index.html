@@ -416,7 +416,7 @@
                         <label for="key" class="floating-label">Short Key (e.g. search)</label>
                     </div>
                     <div class="form-group">
-                        <input type="url" id="url" class="text-field-outlined" placeholder=" " required>
+                        <input type="text" id="url" class="text-field-outlined" placeholder=" " required>
                         <label for="url" class="floating-label">Destination URL</label>
                     </div>
                     <button type="submit" class="btn-filled">
@@ -544,9 +544,15 @@
             e.preventDefault();
             const key = document.getElementById('key').value.trim();
             const domain = document.getElementById('domain').value.trim();
-            const url = document.getElementById('url').value.trim();
+            let url = document.getElementById('url').value.trim();
 
             if (!key || !domain || !url) return;
+
+            // Automatically prepend https:// if no protocol is present
+            if (!/^https?:\/\//i.test(url)) {
+                url = 'https://' + url;
+                document.getElementById('url').value = url;
+            }
 
             try {
                 const response = await fetch('/api/shorten', {
