@@ -197,6 +197,20 @@ You can build and run the application in a secure, minimal container. To persist
      mercury
    ```
 
+### Running with Docker Compose
+
+A [docker-compose.yml](file:///Users/bianca/projects/mercury/docker-compose.yml) is provided in the repository root. This orchestrates the build process, exposes the required port, sets the `MERCURY_DB_PATH` environment variable, and configures a persistent named volume `mercury_data` to ensure the SQLite database persists across container restarts and recreations.
+
+To start the service using Docker Compose:
+```bash
+docker compose up -d --build
+```
+
+To stop the service:
+```bash
+docker compose down
+```
+
 ### Running Tests
 Unit and integration test coverage can be verified by running:
 ```bash
