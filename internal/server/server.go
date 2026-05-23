@@ -1,0 +1,45 @@
+package server
+
+import (
+	"fmt"
+
+	"github.com/beecorrea/shortlinks/internal/database"
+	"github.com/beecorrea/shortlinks/internal/service"
+	"github.com/gofiber/fiber/v2"
+)
+
+type Server struct {
+	App *fiber.App
+	db  *database.RedirectDB
+}
+
+func NewServer(dbPath string) (*Server, error) {
+	db, err := database.NewRedirectDB(dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("initializing database: %w", err)
+	}
+
+	redirectSvc := service.NewRedirectService(db)
+	shortlinkSvc := service.NewShortlinkService(db)
+
+	app := fiber.New(fiber.Config{
+		DisableStartupMessage: true,
+	})
+
+	s := &Server{
+		App: app,
+		db:  db,
+	}
+
+	s.setupRoutes(redirectSvc, shortlinkSvc)
+
+	return s, nil
+}
+
+func (s *Server) Start(addr string) error {
+	return s.App.Listen(addr)
+}
+
+func (s *Server) Close() error {
+	return s.db.Close()
+}

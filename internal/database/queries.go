@@ -18,9 +18,9 @@ func readQuery(name string) string {
 }
 
 var (
-	queryMigrate      = readQuery("migrate")
-	queryInsertLink   = readQuery("insert_link")
-	queryGetLinkByKey = readQuery("get_link")
-	queryListLinks    = readQuery("list_links")
-	queryDeleteLink   = readQuery("delete_link")
+	queryMigrate           = readQuery("migrate")
+	queryInsertShortlink   = readQuery("insert_link")
+	queryGetShortlinkByKey = readQuery("get_link")
+	queryListShortlinks    = readQuery("list_links")
+	queryDeleteShortlink   = readQuery("delete_link")
 )

@@ -11,7 +11,7 @@ type RedirectDB struct {
 	db *sql.DB
 }
 
-func New(dbPath string) (*RedirectDB, error) {
+func NewRedirectDB(dbPath string) (*RedirectDB, error) {
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
@@ -37,43 +37,43 @@ func migrate(db *sql.DB) error {
 	return err
 }
 
-func (r *RedirectDB) CreateLink(key, url, domain string) error {
-	_, err := r.db.Exec(queryInsertLink, key, url, domain)
+func (r *RedirectDB) CreateShortlink(key, url, domain string) error {
+	_, err := r.db.Exec(queryInsertShortlink, key, url, domain)
 	return err
 }
 
-func (r *RedirectDB) GetLinkByKey(key string) (*structs.Link, error) {
-	row := r.db.QueryRow(queryGetLinkByKey, key)
+func (r *RedirectDB) GetShortlinkByKey(key string) (*structs.Shortlink, error) {
+	row := r.db.QueryRow(queryGetShortlinkByKey, key)
 
-	var link structs.Link
-	err := row.Scan(&link.Key, &link.URL, &link.Domain, &link.CreatedAt)
+	var s structs.Shortlink
+	err := row.Scan(&s.Key, &s.URL, &s.Domain, &s.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
-	return &link, nil
+	return &s, nil
 }
 
-func (r *RedirectDB) ListLinks() ([]structs.Link, error) {
-	rows, err := r.db.Query(queryListLinks)
+func (r *RedirectDB) ListShortlinks() ([]structs.Shortlink, error) {
+	rows, err := r.db.Query(queryListShortlinks)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var links []structs.Link
+	var shortlinks []structs.Shortlink
 	for rows.Next() {
-		var link structs.Link
-		if err := rows.Scan(&link.Key, &link.URL, &link.Domain, &link.CreatedAt); err != nil {
+		var s structs.Shortlink
+		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &s.CreatedAt); err != nil {
 			return nil, err
 		}
-		links = append(links, link)
+		shortlinks = append(shortlinks, s)
 	}
-	return links, nil
+	return shortlinks, nil
 }
 
-func (r *RedirectDB) DeleteLink(key string) error {
-	_, err := r.db.Exec(queryDeleteLink, key)
+func (r *RedirectDB) DeleteShortlink(key string) error {
+	_, err := r.db.Exec(queryDeleteShortlink, key)
 	return err
 }

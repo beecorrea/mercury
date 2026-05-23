@@ -6,61 +6,61 @@ import (
 
 func TestDBOperations(t *testing.T) {
 	// Initialize in-memory SQLite database for testing
-	db, err := New(":memory:")
+	db, err := NewRedirectDB(":memory:")
 	if err != nil {
 		t.Fatalf("failed to create in-memory db: %v", err)
 	}
 	defer db.Close()
 
-	// Test CreateLink
-	err = db.CreateLink("g", "https://google.com", "local")
+	// Test CreateShortlink
+	err = db.CreateShortlink("g", "https://google.com", "local")
 	if err != nil {
-		t.Fatalf("failed to create link: %v", err)
+		t.Fatalf("failed to create shortlink: %v", err)
 	}
 
-	// Test GetLinkByKey
-	link, err := db.GetLinkByKey("g")
+	// Test GetShortlinkByKey
+	s, err := db.GetShortlinkByKey("g")
 	if err != nil {
-		t.Fatalf("failed to get link: %v", err)
+		t.Fatalf("failed to get shortlink: %v", err)
 	}
-	if link == nil {
-		t.Fatal("expected link to be found, got nil")
+	if s == nil {
+		t.Fatal("expected shortlink to be found, got nil")
 	}
-	if link.URL != "https://google.com" || link.Domain != "local" {
-		t.Errorf("expected url=https://google.com, domain=local; got url=%s, domain=%s", link.URL, link.Domain)
+	if s.URL != "https://google.com" || s.Domain != "local" {
+		t.Errorf("expected url=https://google.com, domain=local; got url=%s, domain=%s", s.URL, s.Domain)
 	}
-	if link.CreatedAt.IsZero() {
+	if s.CreatedAt.IsZero() {
 		t.Error("expected CreatedAt to be non-zero time")
 	}
-	t.Logf("CreatedAt value: %v", link.CreatedAt)
+	t.Logf("CreatedAt value: %v", s.CreatedAt)
 
-	// Test Duplicate CreateLink (should fail due to UNIQUE constraint)
-	err = db.CreateLink("g", "https://github.com", "local")
+	// Test Duplicate CreateShortlink (should fail due to UNIQUE constraint)
+	err = db.CreateShortlink("g", "https://github.com", "local")
 	if err == nil {
 		t.Error("expected error creating duplicate key, got nil")
 	}
 
-	// Test ListLinks
-	links, err := db.ListLinks()
+	// Test ListShortlinks
+	shortlinks, err := db.ListShortlinks()
 	if err != nil {
-		t.Fatalf("failed to list links: %v", err)
+		t.Fatalf("failed to list shortlinks: %v", err)
 	}
-	if len(links) != 1 {
-		t.Errorf("expected 1 link, got %d", len(links))
+	if len(shortlinks) != 1 {
+		t.Errorf("expected 1 shortlink, got %d", len(shortlinks))
 	}
 
-	// Test DeleteLink
-	err = db.DeleteLink("g")
+	// Test DeleteShortlink
+	err = db.DeleteShortlink("g")
 	if err != nil {
-		t.Fatalf("failed to delete link: %v", err)
+		t.Fatalf("failed to delete shortlink: %v", err)
 	}
 
-	// Test GetLinkByKey after delete
-	link, err = db.GetLinkByKey("g")
+	// Test GetShortlinkByKey after delete
+	s, err = db.GetShortlinkByKey("g")
 	if err != nil {
-		t.Fatalf("failed to get link after delete: %v", err)
+		t.Fatalf("failed to get shortlink after delete: %v", err)
 	}
-	if link != nil {
-		t.Error("expected link to be deleted, but it was found")
+	if s != nil {
+		t.Error("expected shortlink to be deleted, but it was found")
 	}
 }

@@ -2,7 +2,7 @@ package structs
 
 import "time"
 
-type Link struct {
+type Shortlink struct {
 	Key       string    `json:"key"`
 	URL       string    `json:"url"`
 	Domain    string    `json:"domain"`
