@@ -47,7 +47,7 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 	}
 
 	// Validate target URL format
-	u, err := url.ParseRequestURI(req.URL)
+	u, err := url.Parse(req.URL)
 	if err != nil || u.Scheme == "" || u.Host == "" {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "destination must be a valid absolute URL (e.g. https://google.com)"})
 	}

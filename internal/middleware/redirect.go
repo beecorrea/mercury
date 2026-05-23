@@ -14,12 +14,17 @@ func NewRedirectMiddleware(svc *service.RedirectService) fiber.Handler {
 
 		// Check if Host starts with "mercury."
 		if strings.HasPrefix(host, "mercury.") {
-			path := strings.Trim(ctx.Path(), "/")
+			path := ctx.Path()
+			if strings.HasPrefix(path, "/api/") {
+				return ctx.Next()
+			}
+
+			trimmedPath := strings.Trim(path, "/")
 
 			// If path contains sub-routes, use the first segment as the key
-			key := path
-			if idx := strings.Index(path, "/"); idx != -1 {
-				key = path[:idx]
+			key := trimmedPath
+			if idx := strings.Index(trimmedPath, "/"); idx != -1 {
+				key = trimmedPath[:idx]
 			}
 
 			if key != "" {

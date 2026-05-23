@@ -471,6 +471,15 @@
             }, 3000);
         }
 
+        async function getResponseData(response) {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return await response.json();
+            }
+            const text = await response.text();
+            return { error: text || 'Unknown error occurred' };
+        }
+
         async function fetchLinks() {
             try {
                 const response = await fetch('/api/links');
@@ -571,7 +580,7 @@
                     body: JSON.stringify({ key, domain, url })
                 });
 
-                const result = await response.json();
+                const result = await getResponseData(response);
                 if (!response.ok) {
                     throw new Error(result.error || 'Failed to create link');
                 }
@@ -596,7 +605,7 @@
                 });
 
                 if (!response.ok) {
-                    const result = await response.json();
+                    const result = await getResponseData(response);
                     throw new Error(result.error || 'Failed to delete link');
                 }
 
