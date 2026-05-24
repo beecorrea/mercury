@@ -1,18 +1,30 @@
+# Mercury
+
 <p align="center">
-  <img src="resources/logo.png" width="240" height="240" alt="Mercury Logo">
+  <img src="resources/logo.png" width="280" alt="Mercury Logo" />
+  <br />
+  <a href="https://github.com/beecorrea/mercury/releases"><img src="https://img.shields.io/github/v/release/beecorrea/mercury" alt="Latest Release"></a>
+  <a href="https://github.com/beecorrea/mercury/actions"><img src="https://github.com/beecorrea/mercury/actions/workflows/build.yml/badge.svg" alt="Build Status"></a>
 </p>
 
-# Mercury Shortlink Service
+<p align="center">
+  A high-performance, self-hosted shortlink manager for developers.<br />
+  Fast, secure, and customizable redirections with an Apple-inspired dark dashboard.
+</p>
 
-Mercury is a high-performance, self-hosted shortlink manager built in Go using the Fiber web framework and SQLite. It provides a web dashboard and API endpoints for creating, deleting, and listing shortlinks, alongside a high-speed redirection engine that intercepts subdomain-specific traffic.
+<p align="center">
+  <video src="resources/demo_features.mp4" width="800" controls alt="Mercury Feature Demo"></video>
+</p>
 
 ---
 
-## Feature Demo
+## Features
 
-Watch a short demonstration video showcasing the core features (adding a shortlink, redirecting via a short subdomain URL, and deleting active redirection keys):
-
-<video src="resources/demo_features.mp4" width="100%" controls></video>
+- ⚡️ **High-Performance:** Sub-millisecond redirection engine built in Go with Fiber.
+- 🎨 **Modern Dashboard:** High-fidelity, minimalist dark UI with instant creation, filtering, and live state updates.
+- 🛡️ **Robust Frontend:** Defensive null-pointer guards in templates to ensure a zero-crash interactive client experience.
+- 📦 **Docker Ready:** Tiny, secure distroless containers with persistent volume mounts.
+- 💾 **SQLite Backed:** Local database persistence with automatic unique key constraint enforcement.
 
 ---
 
@@ -22,6 +34,7 @@ Watch a short demonstration video showcasing the core features (adding a shortli
 * Go 1.25 or higher
 
 ### Running the Application
+
 1. Download Go dependencies:
    ```bash
    go mod download
@@ -77,11 +90,6 @@ go test -v ./...
 
 ## Documentation & Reference
 
-### Architecture
-For a detailed breakdown of the system architecture, core components, and standardized constructor patterns, please refer to the [Architecture Documentation](docs/architecture.md).
-
-### Directory Structure
-For the full project directory layout, see [docs/directory.md](docs/directory.md).
-
-### API Reference
-For all endpoint specs and request/response payloads, see [docs/api.md](docs/api.md).
+* **[Architecture](docs/architecture.md):** Detailed breakdown of system design, Go modules, and repository architecture.
+* **[Directory Structure](docs/directory.md):** Full repository map.
+* **[API Reference](docs/api.md):** Request and response schemas for all Fiber HTTP endpoints.
