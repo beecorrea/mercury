@@ -533,10 +533,6 @@
                     <span class="stat-label">Total Keys</span>
                     <span class="stat-value" id="total-links-count">0</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">Domain</span>
-                    <span class="stat-value" id="target-domain-val">loading...</span>
-                </div>
             </div>
 
             <!-- Form -->
@@ -577,7 +573,7 @@
                         <line x1="3" y1="12" x2="3.01" y2="12"></line>
                         <line x1="3" y1="18" x2="3.01" y2="18"></line>
                     </svg>
-                    Active Redirection Keys
+                    Shortlinks
                 </h2>
                 
                 <!-- Search container -->
@@ -675,16 +671,6 @@
             if (totalLinksCount) {
                 totalLinksCount.textContent = allLinks.length;
             }
-            const targetDomainVal = document.getElementById('target-domain-val');
-            if (targetDomainVal) {
-                if (allLinks.length > 0 && allLinks[0].domain) {
-                    const domain = allLinks[0].domain;
-                    // Strip port for a cleaner look if present
-                    targetDomainVal.textContent = domain.split(':')[0];
-                } else {
-                    targetDomainVal.textContent = 'communist.mom';
-                }
-            }
         }
 
         function filterAndRenderLinks() {
@@ -701,7 +687,8 @@
 
         function renderLinks(links) {
             const items = (links || []).map(link => {
-                const shortUrl = `http://mercury.${link.domain}/${link.key}`;
+                const domainHost = link.domain.split(':')[0];
+                const shortUrl = `http://mercury.${domainHost}/${link.key}`;
                 const summary = link.summary || '';
                 
                 return `

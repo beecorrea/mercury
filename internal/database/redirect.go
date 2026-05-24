@@ -50,12 +50,14 @@ func (r *RedirectDB) GetShortlinkByKey(key string) (*structs.Shortlink, error) {
 	row := r.db.QueryRow(queryGetShortlinkByKey, key)
 
 	var s structs.Shortlink
-	err := row.Scan(&s.Key, &s.URL, &s.Domain, &s.Summary, &s.CreatedAt)
+	var summary sql.NullString
+	err := row.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
 		return nil, err
 	}
+	s.Summary = summary.String
 	return &s, nil
 }
 
@@ -69,9 +71,11 @@ func (r *RedirectDB) ListShortlinks() ([]structs.Shortlink, error) {
 	var shortlinks []structs.Shortlink
 	for rows.Next() {
 		var s structs.Shortlink
-		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &s.Summary, &s.CreatedAt); err != nil {
+		var summary sql.NullString
+		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.CreatedAt); err != nil {
 			return nil, err
 		}
+		s.Summary = summary.String
 		shortlinks = append(shortlinks, s)
 	}
 	return shortlinks, nil
