@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 
+	"github.com/beecorrea/shortlinks/internal/config"
 	"github.com/beecorrea/shortlinks/internal/database"
 	"github.com/beecorrea/shortlinks/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -13,8 +14,8 @@ type Server struct {
 	db  *database.RedirectDB
 }
 
-func NewServer(dbPath string) (*Server, error) {
-	db, err := database.NewRedirectDB(dbPath)
+func NewServer(cfg *config.Config) (*Server, error) {
+	db, err := database.NewRedirectDB(cfg.DBPath)
 	if err != nil {
 		return nil, fmt.Errorf("initializing database: %w", err)
 	}
@@ -31,7 +32,7 @@ func NewServer(dbPath string) (*Server, error) {
 		db:  db,
 	}
 
-	s.setupRoutes(redirectSvc, shortlinkSvc)
+	s.setupRoutes(cfg, redirectSvc, shortlinkSvc)
 
 	return s, nil
 }
@@ -43,3 +44,4 @@ func (s *Server) Start(addr string) error {
 func (s *Server) Close() error {
 	return s.db.Close()
 }
+

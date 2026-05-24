@@ -1,25 +1,23 @@
 package server
 
 import (
+	"github.com/beecorrea/shortlinks/internal/config"
 	"github.com/beecorrea/shortlinks/internal/controllers"
 	"github.com/beecorrea/shortlinks/internal/middleware"
 	"github.com/beecorrea/shortlinks/internal/service"
 )
 
-func (s *Server) setupRoutes(redirectSvc *service.RedirectService, shortlinkSvc *service.ShortlinkService) {
+func (s *Server) setupRoutes(cfg *config.Config, redirectSvc *service.RedirectService, shortlinkSvc *service.ShortlinkService) {
 	// Apply redirect middleware
 	s.App.Use(middleware.NewRedirectMiddleware(redirectSvc))
 
 	// Initialize Controllers
-	shortlinkController := controllers.NewShortlinkController(shortlinkSvc)
+	shortlinkController := controllers.NewShortlinkController(shortlinkSvc, cfg.Domain, cfg.Port)
 	dashboardController := controllers.NewDashboardController()
 
 	// Register Routes
-	dashboard := s.App.Group("/")
-	dashboard.Get("/", dashboardController.ServeDashboard)
-
-	api := s.App.Group("/api")
-	api.Get("/links", shortlinkController.ListShortlinks)
-	api.Post("/shorten", shortlinkController.CreateShortlink)
-	api.Delete("/links/:key", shortlinkController.DeleteShortlink)
+	s.App.Get("/", dashboardController.ServeDashboard)
+	s.App.Get("/api/links", shortlinkController.ListShortlinks)
+	s.App.Post("/api/shorten", shortlinkController.CreateShortlink)
+	s.App.Delete("/api/links/:key", shortlinkController.DeleteShortlink)
 }

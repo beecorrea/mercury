@@ -408,10 +408,6 @@
                 </h2>
                 <form id="shorten-form">
                     <div class="form-group">
-                        <input type="text" id="domain" class="text-field-outlined" placeholder=" " required value="communist.mom">
-                        <label for="domain" class="floating-label">Domain (e.g. communist.mom, dev)</label>
-                    </div>
-                    <div class="form-group">
                         <input type="text" id="key" class="text-field-outlined" placeholder=" " required>
                         <label for="key" class="floating-label">Short Key (e.g. search)</label>
                     </div>
@@ -497,8 +493,7 @@
         function renderLinks(links) {
             // Keep the empty state element in memory
             const items = (links || []).map(link => {
-                const cleanDomain = link.domain.split(':')[0];
-                const shortUrl = `http://mercury.${cleanDomain}/${link.key}`;
+                const shortUrl = `http://mercury.${link.domain}/${link.key}`;
                 return `
                     <div class="link-item">
                         <div class="link-info">
@@ -553,20 +548,14 @@
         shortenForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const key = document.getElementById('key').value.trim();
-            let domain = document.getElementById('domain').value.trim();
             let url = document.getElementById('url').value.trim();
 
-            if (!key || !domain || !url) return;
+            if (!key || !url) return;
 
             // Automatically prepend https:// if no protocol is present
             if (!/^https?:\/\//i.test(url)) {
                 url = 'https://' + url;
                 document.getElementById('url').value = url;
-            }
-
-            // Append port number if not already present
-            if (!domain.includes(':')) {
-                domain = `${domain}:${window.location.port || '45800'}`;
             }
 
             try {
@@ -575,7 +564,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ key, domain, url })
+                    body: JSON.stringify({ key, url })
                 });
 
                 const result = await getResponseData(response);

@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"net/url"
 	"strings"
 
@@ -11,10 +10,16 @@ import (
 
 type ShortlinkController struct {
 	Service *service.ShortlinkService
+	Domain  string
+	Port    string
 }
 
-func NewShortlinkController(svc *service.ShortlinkService) *ShortlinkController {
-	return &ShortlinkController{Service: svc}
+func NewShortlinkController(svc *service.ShortlinkService, domain, port string) *ShortlinkController {
+	return &ShortlinkController{
+		Service: svc,
+		Domain:  domain,
+		Port:    port,
+	}
 }
 
 // ListShortlinks handles GET /api/links.
@@ -27,30 +32,8 @@ func (c *ShortlinkController) ListShortlinks(ctx *fiber.Ctx) error {
 }
 
 type ShortenRequest struct {
-	Key    string `json:"key"`
-	URL    string `json:"url"`
-	Domain string `json:"domain"`
-}
-
-// Clean trims leading and trailing spaces from all request fields.
-func (r *ShortenRequest) Clean() {
-	r.Key = strings.TrimSpace(r.Key)
-	r.Domain = strings.TrimSpace(r.Domain)
-	r.URL = strings.TrimSpace(r.URL)
-}
-
-// Validate checks if the fields are non-empty and if the URL format is a valid absolute URL.
-func (r *ShortenRequest) Validate() error {
-	if r.Key == "" || r.Domain == "" || r.URL == "" {
-		return errors.New("key, domain, and url are required")
-	}
-
-	u, err := url.Parse(r.URL)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return errors.New("destination must be a valid absolute URL (e.g. https://google.com)")
-	}
-
-	return nil
+	Key string `json:"key"`
+	URL string `json:"url"`
 }
 
 // CreateShortlink handles POST /api/shorten.
@@ -60,12 +43,28 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
-	req.Clean()
-	if err := req.Validate(); err != nil {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
+	req.Key = strings.TrimSpace(req.Key)
+	req.URL = strings.TrimSpace(req.URL)
+
+	if req.Key == "" || req.URL == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "key and url are required"})
 	}
 
-	if err := c.Service.CreateShortlink(req.Key, req.URL, req.Domain); err != nil {
+	// Validate target URL format
+	u, err := url.ParseRequestURI(req.URL)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "destination must be a valid absolute URL (e.g. https://google.com)"})
+	}
+
+	// Append port number if not already present in the configured domain
+	domain := c.Domain
+	if !strings.Contains(domain, ":") && c.Port != "" {
+		domain = domain + ":" + c.Port
+	}
+
+	// Persist shortlink using the service
+	err = c.Service.CreateShortlink(req.Key, req.URL, domain)
+	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "short key is already in use"})
 		}

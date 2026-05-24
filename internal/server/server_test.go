@@ -8,20 +8,27 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/beecorrea/shortlinks/internal/config"
 	"github.com/beecorrea/shortlinks/internal/structs"
 )
 
 func TestServer(t *testing.T) {
-	// Initialize Server with in-memory SQLite database
-	srv, err := NewServer(":memory:")
+	// Initialize Server with config and in-memory SQLite database
+	cfg := &config.Config{
+		DBPath: ":memory:",
+		Domain: "communist.mom",
+		Port:   "45800",
+	}
+	srv, err := NewServer(cfg)
 	if err != nil {
 		t.Fatalf("failed to create server: %v", err)
 	}
 	defer srv.Close()
 
 	// 1. Test POST /api/shorten
-	reqBody := `{"key":"testkey", "url":"https://example.com", "domain":"local"}`
+	reqBody := `{"key":"testkey", "url":"https://example.com"}`
 	req := httptest.NewRequest("POST", "/api/shorten", bytes.NewBufferString(reqBody))
+
 	req.Header.Set("Content-Type", "application/json")
 	resp, err := srv.App.Test(req)
 	if err != nil {
