@@ -63,7 +63,7 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 	}
 
 	// Persist shortlink using the service
-	err = c.Service.CreateShortlink(req.Key, req.URL, domain)
+	err = c.Service.CreateShortlink(ctx.UserContext(), req.Key, req.URL, domain)
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "short key is already in use"})
