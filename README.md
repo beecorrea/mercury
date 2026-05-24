@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="resources/logo.png" width="120" height="120" alt="Mercury Logo">
+</p>
+
 # Mercury Shortlink Service
 
 Mercury is a high-performance, self-hosted shortlink manager built in Go using the Fiber web framework and SQLite. It provides a web dashboard and API endpoints for creating, deleting, and listing shortlinks, alongside a high-speed redirection engine that intercepts subdomain-specific traffic.
@@ -67,7 +71,7 @@ go test -v ./...
 
 Watch a short demonstration video showcasing the core features (adding a shortlink, redirecting via a short subdomain URL, and deleting active redirection keys):
 
-![Mercury Features Demo](resources/demo_features.webm)
+<video src="resources/demo_features.webm" width="100%" controls></video>
 
 ---
 
