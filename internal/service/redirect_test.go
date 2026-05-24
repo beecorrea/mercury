@@ -43,3 +43,26 @@ func TestRedirectService(t *testing.T) {
 		t.Errorf("expected nil for missing key, got: %+v", s)
 	}
 }
+
+func TestGetRedirectKey(t *testing.T) {
+	svc := NewRedirectService(nil)
+
+	tests := []struct {
+		host string
+		path string
+		want string
+	}{
+		{"mercury.local", "/testkey", "testkey"},
+		{"mercury", "/testkey", "testkey"},
+		{"mercury.communist.mom", "/somekey", "somekey"},
+		{"localhost", "/testkey", ""},
+		{"mercury.local", "/api/links", ""},
+	}
+
+	for _, tc := range tests {
+		got := svc.GetRedirectKey(tc.host, tc.path)
+		if got != tc.want {
+			t.Errorf("GetRedirectKey(%q, %q) = %q; want %q", tc.host, tc.path, got, tc.want)
+		}
+	}
+}

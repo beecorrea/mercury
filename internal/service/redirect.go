@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/beecorrea/shortlinks/internal/database"
 	"github.com/beecorrea/shortlinks/internal/structs"
@@ -13,6 +14,18 @@ type RedirectService struct {
 
 func NewRedirectService(db *database.RedirectDB) *RedirectService {
 	return &RedirectService{db: db}
+}
+
+func (s *RedirectService) GetRedirectKey(host, path string) string {
+	if host != "mercury" && !strings.HasPrefix(host, "mercury.") {
+		return ""
+	}
+
+	if strings.HasPrefix(path, "/api/") {
+		return ""
+	}
+
+	return strings.Trim(path, "/")
 }
 
 func (s *RedirectService) GetShortlinkByKey(key string) (*structs.Shortlink, error) {
