@@ -4,24 +4,6 @@ Mercury is a high-performance, self-hosted shortlink manager built in Go using t
 
 ---
 
-## Architecture
-
-For a detailed breakdown of the system architecture, core components, and standardized constructor patterns, please refer to the [Architecture Documentation](docs/architecture.md).
-
----
-
-## Directory Structure
-
-For the full project directory layout, see [docs/directory.md](docs/directory.md).
-
----
-
-## API Reference
-
-For all endpoint specs and request/response payloads, see [docs/api.md](docs/api.md).
-
----
-
 ## Local Development & Installation
 
 ### Prerequisites
@@ -78,3 +60,16 @@ Unit and integration test coverage can be verified by running:
 ```bash
 go test -v ./...
 ```
+
+---
+
+## Documentation & Reference
+
+### Architecture
+For a detailed breakdown of the system architecture, core components, and standardized constructor patterns, please refer to the [Architecture Documentation](docs/architecture.md).
+
+### Directory Structure
+For the full project directory layout, see [docs/directory.md](docs/directory.md).
+
+### API Reference
+For all endpoint specs and request/response payloads, see [docs/api.md](docs/api.md).
