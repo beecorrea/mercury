@@ -2,9 +2,6 @@
 
 <p align="center">
   <img src="resources/logo.png" width="280" alt="Mercury Logo" />
-  <br />
-  <a href="https://github.com/beecorrea/mercury/releases"><img src="https://img.shields.io/github/v/release/beecorrea/mercury" alt="Latest Release"></a>
-  <a href="https://github.com/beecorrea/mercury/actions"><img src="https://github.com/beecorrea/mercury/actions/workflows/build.yml/badge.svg" alt="Build Status"></a>
 </p>
 
 <p align="center">
@@ -22,7 +19,6 @@
 
 - ⚡️ **High-Performance:** Sub-millisecond redirection engine built in Go with Fiber.
 - 🎨 **Modern Dashboard:** High-fidelity, minimalist dark UI with instant creation, filtering, and live state updates.
-- 🛡️ **Robust Frontend:** Defensive null-pointer guards in templates to ensure a zero-crash interactive client experience.
 - 📦 **Docker Ready:** Tiny, secure distroless containers with persistent volume mounts.
 - 💾 **SQLite Backed:** Local database persistence with automatic unique key constraint enforcement.
 
