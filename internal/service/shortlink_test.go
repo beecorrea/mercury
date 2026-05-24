@@ -1,13 +1,25 @@
 package service
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"strings"
+	"context"
+	"fmt"
 	"testing"
 
 	"github.com/beecorrea/shortlinks/internal/database"
+	"github.com/beecorrea/shortlinks/internal/structs"
 )
+
+type mockScraper struct {
+	summary string
+	err     error
+}
+
+func (m *mockScraper) Scrape(ctx context.Context, targetURL string) (string, error) {
+	if m.err != nil {
+		return "", m.err
+	}
+	return m.summary, nil
+}
 
 func TestShortlinkService(t *testing.T) {
 	// Initialize in-memory SQLite database
@@ -17,10 +29,15 @@ func TestShortlinkService(t *testing.T) {
 	}
 	defer db.Close()
 
-	svc := NewShortlinkService(db)
+	mockScr := &mockScraper{summary: "Mock Description"}
+	svc := NewShortlinkService(db, mockScr)
 
-	// Test CreateShortlink
-	err = svc.CreateShortlink("g", "https://google.com", "local")
+	// Test CreateShortlink (success path)
+	err = svc.CreateShortlink(context.Background(), structs.Shortlink{
+		Key:    "g",
+		URL:    "https://google.com",
+		Domain: "local",
+	})
 	if err != nil {
 		t.Fatalf("failed to create shortlink: %v", err)
 	}
@@ -32,6 +49,37 @@ func TestShortlinkService(t *testing.T) {
 	}
 	if len(links) != 1 || links[0].Key != "g" {
 		t.Errorf("unexpected shortlinks list: %+v", links)
+	}
+	if links[0].Summary != "Mock Description" {
+		t.Errorf("expected summary %q, got %q", "Mock Description", links[0].Summary)
+	}
+
+	// Test CreateShortlink (fallback path on scraper error, e.g. 404)
+	mockScrErr := &mockScraper{err: fmt.Errorf("site returned status 404")}
+	svcErr := NewShortlinkService(db, mockScrErr)
+	err = svcErr.CreateShortlink(context.Background(), structs.Shortlink{
+		Key:    "brokenkey",
+		URL:    "https://brokenlink.com/nonexistent",
+		Domain: "local",
+	})
+	if err != nil {
+		t.Fatalf("failed to create shortlink with broken link: %v", err)
+	}
+
+	links, err = svcErr.ListShortlinks()
+	if err != nil {
+		t.Fatalf("failed to list shortlinks: %v", err)
+	}
+	// We have 2 shortlinks now: "g" and "brokenkey"
+	var brokenLink structs.Shortlink
+	for _, l := range links {
+		if l.Key == "brokenkey" {
+			brokenLink = l
+		}
+	}
+	expectedFallbackSummary := "Could not scrape brokenlink.com: site returned status 404"
+	if brokenLink.Summary != expectedFallbackSummary {
+		t.Errorf("expected fallback summary %q, got %q", expectedFallbackSummary, brokenLink.Summary)
 	}
 
 	// Test DeleteShortlink
@@ -45,66 +93,7 @@ func TestShortlinkService(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to list shortlinks after delete: %v", err)
 	}
-	if len(links) != 0 {
-		t.Errorf("expected 0 shortlinks, got %d", len(links))
-	}
-}
-
-func TestScrapeSummary(t *testing.T) {
-	tests := []struct {
-		name           string
-		handler        http.HandlerFunc
-		expectedResult string
-	}{
-		{
-			name: "meta name description",
-			handler: func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte(`<html><head><meta name="description" content="This is description!"></head></html>`))
-			},
-			expectedResult: "This is description!",
-		},
-		{
-			name: "meta og description",
-			handler: func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte(`<html><head><meta property="og:description" content="This is og description!"></head></html>`))
-			},
-			expectedResult: "This is og description!",
-		},
-		{
-			name: "fallback to title",
-			handler: func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte(`<html><head><title>This is title!</title></head></html>`))
-			},
-			expectedResult: "This is title!",
-		},
-		{
-			name: "fallback to redirect message",
-			handler: func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusOK)
-				_, _ = w.Write([]byte(`<html><head></head></html>`))
-			},
-			expectedResult: "Shortlink redirect to ",
-		},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			server := httptest.NewServer(tc.handler)
-			defer server.Close()
-
-			got := scrapeSummary(server.URL)
-			if strings.HasPrefix(tc.expectedResult, "Shortlink redirect to ") {
-				if !strings.HasPrefix(got, "Shortlink redirect to ") {
-					t.Errorf("expected summary to start with 'Shortlink redirect to ', got %q", got)
-				}
-			} else {
-				if got != tc.expectedResult {
-					t.Errorf("expected summary %q, got %q", tc.expectedResult, got)
-				}
-			}
-		})
+	if len(links) != 1 || links[0].Key != "brokenkey" {
+		t.Errorf("expected only 'brokenkey' shortlink remaining, got %d links", len(links))
 	}
 }

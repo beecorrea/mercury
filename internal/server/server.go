@@ -5,6 +5,7 @@ import (
 
 	"github.com/beecorrea/shortlinks/internal/config"
 	"github.com/beecorrea/shortlinks/internal/database"
+	"github.com/beecorrea/shortlinks/internal/scraper"
 	"github.com/beecorrea/shortlinks/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,7 +22,8 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	}
 
 	redirectSvc := service.NewRedirectService(db)
-	shortlinkSvc := service.NewShortlinkService(db)
+	scraperImpl := scraper.NewHTTPScraper()
+	shortlinkSvc := service.NewShortlinkService(db, scraperImpl)
 
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
