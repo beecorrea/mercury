@@ -372,7 +372,7 @@
 
         .link-item-summary {
             font-family: var(--font-sans);
-            font-size: 13px;
+            font-size: 15px;
             line-height: 1.4;
             color: var(--text-muted);
             word-break: break-word;
@@ -628,18 +628,22 @@
         let showToastTimeout;
 
         function showNotification(message, isSuccess = true) {
-            toastMsg.textContent = message;
-            toast.className = 'toast-container'; // reset classes
-            if (isSuccess) {
-                toast.classList.add('toast-success');
-            } else {
-                toast.classList.add('toast-error');
+            if (toastMsg) {
+                toastMsg.textContent = message;
             }
-            toast.classList.add('show');
-            clearTimeout(showToastTimeout);
-            showToastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            if (toast) {
+                toast.className = 'toast-container'; // reset classes
+                if (isSuccess) {
+                    toast.classList.add('toast-success');
+                } else {
+                    toast.classList.add('toast-error');
+                }
+                toast.classList.add('show');
+                clearTimeout(showToastTimeout);
+                showToastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
         }
 
         async function getResponseData(response) {
@@ -667,18 +671,24 @@
         }
 
         function updateStats() {
-            document.getElementById('total-links-count').textContent = allLinks.length;
-            if (allLinks.length > 0 && allLinks[0].domain) {
-                const domain = allLinks[0].domain;
-                // Strip port for a cleaner look if present
-                document.getElementById('target-domain-val').textContent = domain.split(':')[0];
-            } else {
-                document.getElementById('target-domain-val').textContent = 'communist.mom';
+            const totalLinksCount = document.getElementById('total-links-count');
+            if (totalLinksCount) {
+                totalLinksCount.textContent = allLinks.length;
+            }
+            const targetDomainVal = document.getElementById('target-domain-val');
+            if (targetDomainVal) {
+                if (allLinks.length > 0 && allLinks[0].domain) {
+                    const domain = allLinks[0].domain;
+                    // Strip port for a cleaner look if present
+                    targetDomainVal.textContent = domain.split(':')[0];
+                } else {
+                    targetDomainVal.textContent = 'communist.mom';
+                }
             }
         }
 
         function filterAndRenderLinks() {
-            const query = searchInput.value.toLowerCase().trim();
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
             const filtered = allLinks.filter(link => {
                 const summary = link.summary || '';
                 return link.key.toLowerCase().includes(query) || 
@@ -700,15 +710,15 @@
                             <div class="link-item-header">
                                 <a href="${shortUrl}" target="_blank" rel="noopener noreferrer" class="short-url-link">${shortUrl}</a>
                             </div>
-                            <div class="link-item-summary">
-                                ${summary ? escapeHtml(summary) : '<span class="no-summary">No summary snippet available.</span>'}
-                            </div>
                             <div class="link-item-destination">
                                 <svg class="dest-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>
                                     <polyline points="12 5 19 12 12 19"></polyline>
                                 </svg>
                                 <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="destination-link" title="${escapeHtml(link.url)}">${escapeHtml(link.url)}</a>
+                            </div>
+                            <div class="link-item-summary">
+                                ${summary ? escapeHtml(summary) : '<span class="no-summary">No summary snippet available.</span>'}
                             </div>
                             <div class="link-item-meta">
                                 Created on ${new Date(link.created_at).toLocaleDateString()} at ${new Date(link.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
@@ -739,13 +749,19 @@
                 `;
             });
 
-            if (items.length === 0) {
-                linksListContainer.innerHTML = '';
-                linksListContainer.appendChild(emptyState);
-                emptyState.style.display = 'flex';
-            } else {
-                emptyState.style.display = 'none';
-                linksListContainer.innerHTML = items.join('');
+            if (linksListContainer) {
+                if (items.length === 0) {
+                    linksListContainer.innerHTML = '';
+                    if (emptyState) {
+                        linksListContainer.appendChild(emptyState);
+                        emptyState.style.display = 'flex';
+                    }
+                } else {
+                    if (emptyState) {
+                        emptyState.style.display = 'none';
+                    }
+                    linksListContainer.innerHTML = items.join('');
+                }
             }
         }
 
@@ -760,83 +776,100 @@
                 await navigator.clipboard.writeText(text);
                 showNotification('Copied short URL to clipboard!');
                 
-                const svgElement = btnElement.querySelector('svg');
-                const originalHTML = svgElement.outerHTML;
-                
-                btnElement.style.color = 'var(--accent-green)';
-                btnElement.style.borderColor = 'var(--accent-green)';
-                btnElement.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                `;
-                
-                setTimeout(() => {
-                    btnElement.style.color = '';
-                    btnElement.style.borderColor = '';
-                    btnElement.innerHTML = originalHTML;
-                }, 1500);
+                const svgElement = btnElement ? btnElement.querySelector('svg') : null;
+                if (btnElement && svgElement) {
+                    const originalHTML = svgElement.outerHTML;
+                    
+                    btnElement.style.color = 'var(--accent-green)';
+                    btnElement.style.borderColor = 'var(--accent-green)';
+                    btnElement.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    `;
+                    
+                    setTimeout(() => {
+                        btnElement.style.color = '';
+                        btnElement.style.borderColor = '';
+                        btnElement.innerHTML = originalHTML;
+                    }, 1500);
+                }
             } catch (err) {
                 showNotification('Failed to copy link', false);
             }
         }
 
         // Live filtering event listeners
-        searchInput.addEventListener('input', () => {
-            if (searchInput.value.length > 0) {
-                searchClear.style.display = 'flex';
-            } else {
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const hasValue = searchInput.value.length > 0;
+                if (searchClear) {
+                    searchClear.style.display = hasValue ? 'flex' : 'none';
+                }
+                filterAndRenderLinks();
+            });
+        }
+
+        if (searchClear) {
+            searchClear.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.focus();
+                }
                 searchClear.style.display = 'none';
-            }
-            filterAndRenderLinks();
-        });
+                filterAndRenderLinks();
+            });
+        }
 
-        searchClear.addEventListener('click', () => {
-            searchInput.value = '';
-            searchClear.style.display = 'none';
-            filterAndRenderLinks();
-            searchInput.focus();
-        });
+        if (shortenForm) {
+            shortenForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const keyElem = document.getElementById('key');
+                const urlElem = document.getElementById('url');
+                
+                const key = keyElem ? keyElem.value.trim() : '';
+                let url = urlElem ? urlElem.value.trim() : '';
 
-        shortenForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const key = document.getElementById('key').value.trim();
-            let url = document.getElementById('url').value.trim();
+                if (!key || !url) return;
 
-            if (!key || !url) return;
-
-            // Automatically prepend https:// if no protocol is present
-            if (!/^https?:\/\//i.test(url)) {
-                url = 'https://' + url;
-                document.getElementById('url').value = url;
-            }
-
-            try {
-                const response = await fetch('/api/shorten', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ key, url })
-                });
-
-                const result = await getResponseData(response);
-                if (!response.ok) {
-                    throw new Error(result.error || 'Failed to create link');
+                // Automatically prepend https:// if no protocol is present
+                if (!/^https?:\/\//i.test(url)) {
+                    url = 'https://' + url;
+                    if (urlElem) {
+                        urlElem.value = url;
+                    }
                 }
 
-                showNotification('Link created successfully!');
-                document.getElementById('key').value = '';
-                document.getElementById('url').value = '';
-                
-                document.getElementById('key').blur();
-                document.getElementById('url').blur();
-                
-                fetchLinks();
-            } catch (error) {
-                showNotification(error.message, false);
-            }
-        });
+                try {
+                    const response = await fetch('/api/shorten', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ key, url })
+                    });
+
+                    const result = await getResponseData(response);
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to create link');
+                    }
+
+                    showNotification('Link created successfully!');
+                    if (keyElem) {
+                        keyElem.value = '';
+                        keyElem.blur();
+                    }
+                    if (urlElem) {
+                        urlElem.value = '';
+                        urlElem.blur();
+                    }
+                    
+                    fetchLinks();
+                } catch (error) {
+                    showNotification(error.message, false);
+                }
+            });
+        }
 
         async function deleteLink(key) {
             if (!confirm(`Are you sure you want to delete the redirect key "${key}"?`)) {
