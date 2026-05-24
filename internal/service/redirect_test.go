@@ -52,16 +52,16 @@ func TestGetRedirectKey(t *testing.T) {
 		path   string
 		want   string
 	}{
-		// Production domain
-		{"exact domain match", "communist.mom", "communist.mom", "/testkey", "testkey"},
-		{"subdomain match", "communist.mom", "mercury.communist.mom", "/somekey", "somekey"},
+		// Production domain (localhost)
+		{"exact domain match", "localhost", "localhost", "/testkey", "testkey"},
+		{"subdomain match", "localhost", "mercury.localhost", "/somekey", "somekey"},
 		// Localhost (development)
 		{"localhost exact match", "localhost", "localhost", "/ert", "ert"},
 		{"localhost subdomain match", "localhost", "mercury.localhost", "/testkey", "testkey"},
 		// API bypass
 		{"api route bypassed", "localhost", "localhost", "/api/links", ""},
 		// Wrong host
-		{"unrelated host ignored", "communist.mom", "localhost", "/testkey", ""},
+		{"unrelated host ignored", "localhost", "otherhost", "/testkey", ""},
 	}
 
 	for _, tc := range tests {
