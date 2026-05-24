@@ -706,14 +706,7 @@
         function renderLinks(links) {
             const items = (links || []).map(link => {
                 const hasLocalhost = link.domain.includes("localhost");
-                let shortUrl;
-                if (hasLocalhost) {
-                    shortUrl = `http://${link.domain}/${link.key}`;
-                } else if (link.domain === "mercury" || link.domain.startsWith("mercury.")) {
-                    shortUrl = `https://${link.domain}/${link.key}`;
-                } else {
-                    shortUrl = `https://mercury.${link.domain}/${link.key}`;
-                }
+                const shortUrl = hasLocalhost ? `http://${link.domain}/${link.key}` : `https://mercury/${link.key}`;
                 const summary = link.summary || '';
 
                 return `
