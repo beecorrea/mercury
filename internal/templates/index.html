@@ -557,10 +557,7 @@
                         <label for="url" class="form-label">Destination URL</label>
                         <input type="text" id="url" class="text-field-outlined" placeholder="https://example.com" required autocomplete="off">
                     </div>
-                    <div class="form-group">
-                        <label for="summary" class="form-label">Summary Snippet</label>
-                        <input type="text" id="summary" class="text-field-outlined" placeholder="Why did you save this link?" autocomplete="off">
-                    </div>
+
                     <button type="submit" class="btn-filled">
                         Create Short URL
                     </button>
@@ -683,7 +680,7 @@
         function filterAndRenderLinks() {
             const query = searchInput.value.toLowerCase().trim();
             const filtered = allLinks.filter(link => {
-                const summary = localStorage.getItem('mercury_meta_' + link.key) || '';
+                const summary = link.summary || '';
                 return link.key.toLowerCase().includes(query) || 
                        link.url.toLowerCase().includes(query) ||
                        summary.toLowerCase().includes(query) ||
@@ -695,7 +692,7 @@
         function renderLinks(links) {
             const items = (links || []).map(link => {
                 const shortUrl = `http://mercury.${link.domain}/${link.key}`;
-                const summary = localStorage.getItem('mercury_meta_' + link.key) || '';
+                const summary = link.summary || '';
                 
                 return `
                     <div class="link-item">
@@ -805,7 +802,6 @@
             e.preventDefault();
             const key = document.getElementById('key').value.trim();
             let url = document.getElementById('url').value.trim();
-            const summary = document.getElementById('summary').value.trim();
 
             if (!key || !url) return;
 
@@ -829,19 +825,12 @@
                     throw new Error(result.error || 'Failed to create link');
                 }
 
-                // If successful, save summary to localStorage
-                if (summary) {
-                    localStorage.setItem('mercury_meta_' + key, summary);
-                }
-
                 showNotification('Link created successfully!');
                 document.getElementById('key').value = '';
                 document.getElementById('url').value = '';
-                document.getElementById('summary').value = '';
                 
                 document.getElementById('key').blur();
                 document.getElementById('url').blur();
-                document.getElementById('summary').blur();
                 
                 fetchLinks();
             } catch (error) {
@@ -863,9 +852,6 @@
                     const result = await getResponseData(response);
                     throw new Error(result.error || 'Failed to delete link');
                 }
-
-                // If successful, clean up localStorage summary
-                localStorage.removeItem('mercury_meta_' + key);
 
                 showNotification('Link deleted successfully');
                 fetchLinks();

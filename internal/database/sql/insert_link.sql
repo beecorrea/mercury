@@ -1,1 +1,2 @@
-INSERT INTO links (key, url, domain) VALUES (?, ?, ?);
+INSERT INTO links (key, url, domain, summary) VALUES (?, ?, ?, ?);
+
