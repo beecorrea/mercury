@@ -3,99 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Manage your high-performance shortlinks securely with the Mercury URL Shortener dashboard.">
-    <title>Mercury URL Shortener</title>
-    <!-- Roboto & Product Sans / Inter fonts from Google Fonts -->
+    <meta name="description" content="Manage your high-performance shortlinks securely with the Mercury Link Manager dashboard.">
+    <title>Mercury Link Manager</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* CSS reset & variables */
         :root {
-            /* Dark Glassmorphism color palette */
-            --bg-app: radial-gradient(circle at 50% 0%, #151226 0%, #08070d 100%);
-            --bg-glass: rgba(22, 20, 38, 0.65);
-            --bg-glass-hover: rgba(30, 27, 52, 0.8);
-            --border-glass: rgba(255, 255, 255, 0.07);
-            --border-glass-hover: rgba(255, 255, 255, 0.12);
-            --primary: #9d4edd; /* Neon purple/violet */
-            --primary-light: #c77dff;
-            --primary-glow: rgba(157, 78, 221, 0.25);
-            --accent: #ff007f; /* Vibrant neon pink */
-            --on-surface: #f3f4f6;
-            --on-surface-variant: #9ca3af;
-            --outline: rgba(255, 255, 255, 0.15);
-            --outline-focus: #9d4edd;
-            --error: #ff4d6d;
-            --error-container: rgba(255, 77, 109, 0.15);
-            --success: #06d6a0;
-            --success-glow: rgba(6, 214, 160, 0.2);
-            
-            --md-shape-corner-small: 10px;
-            --md-shape-corner-medium: 16px;
-            --md-shape-corner-large: 24px;
-            --md-shape-corner-extra-large: 32px;
-            
-            --glow-shadow: 0 0 20px rgba(157, 78, 221, 0.15);
-            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            
-            --font-title: 'Outfit', sans-serif;
-            --font-body: 'Roboto', sans-serif;
+            --bg-app: #070708;
+            --bg-card: #121214;
+            --bg-input: #070708;
+            --text-primary: #FFFFFF;
+            --text-secondary: #E4E4E7;
+            --text-muted: #A1A1AA;
+            --accent-blue: #0071e3;
+            --accent-green: #30D158;
+            --accent-red: #FF453A;
+            --border-thin: #27272A;
+            --border-radius: 8px;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, monospace;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            transition: background-color 0.25s, border-color 0.25s, box-shadow 0.25s, transform 0.25s;
         }
 
         body {
-            font-family: var(--font-body);
-            background: var(--bg-app);
-            background-attachment: fixed;
-            color: var(--on-surface);
+            font-family: var(--font-sans);
+            background-color: var(--bg-app);
+            color: var(--text-primary);
             line-height: 1.5;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Ambient background glow elements */
-        .ambient-glow {
-            position: fixed;
-            width: 600px;
-            height: 600px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: -1;
-            filter: blur(120px);
-            opacity: 0.15;
+        /* Webkit scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        
-        .bg-glow-1 {
-            background: var(--primary);
-            top: -200px;
-            left: 5%;
+        ::-webkit-scrollbar-track {
+            background: var(--bg-app);
         }
-        
-        .bg-glow-2 {
-            background: var(--accent);
-            bottom: -200px;
-            right: 5%;
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-thin);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3F3F46;
         }
 
-        /* Top App Bar */
+        /* Top Header */
         .app-bar {
-            height: 72px;
-            background: rgba(13, 11, 23, 0.6);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            height: 56px;
+            background: var(--bg-app);
+            border-bottom: 1px solid var(--border-thin);
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-            border-bottom: 1px solid var(--border-glass);
+            padding: 0 24px;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -104,51 +76,36 @@
         .app-logo-container {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 8px;
+        }
+
+        .logo-icon {
+            color: var(--text-primary);
         }
 
         .app-logo {
-            font-family: var(--font-title);
-            font-weight: 700;
-            font-size: 24px;
-            background: linear-gradient(135deg, #c77dff, #ff007f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
         }
 
-        .app-logo .logo-icon {
-            font-size: 32px;
-            color: #c77dff !important;
-            -webkit-text-fill-color: initial;
-            animation: float 3s ease-in-out infinite;
+        .app-tagline {
+            font-size: 12px;
+            color: var(--text-muted);
+            border-left: 1px solid var(--border-thin);
+            padding-left: 8px;
+            margin-left: 8px;
         }
 
-        .app-subtitle {
-            font-size: 14px;
-            color: var(--on-surface-variant);
-            margin-left: 12px;
-            border-left: 1px solid var(--border-glass);
-            padding-left: 12px;
-            font-weight: 400;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-4px); }
-            100% { transform: translateY(0px); }
-        }
-
-        /* Container & Layout */
+        /* Layout Container */
         .container {
             max-width: 1200px;
             width: 100%;
             margin: 0 auto;
-            padding: 32px 24px;
+            padding: 40px 24px;
             display: grid;
-            grid-template-columns: 380px 1fr;
+            grid-template-columns: 360px 1fr;
             gap: 32px;
             flex-grow: 1;
         }
@@ -156,12 +113,12 @@
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
-                padding: 20px 16px;
+                padding: 24px 16px;
                 gap: 24px;
             }
         }
 
-        /* Sidebar & Layout Elements */
+        /* Sidebar & Main */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -172,427 +129,398 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
-        }
-
-        /* Statistics Panel */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-        
-        .stat-card {
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glass);
-            border-radius: var(--md-shape-corner-medium);
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            box-shadow: var(--glass-shadow);
-        }
-        
-        .stat-icon-wrapper {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            background: rgba(157, 78, 221, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-light);
-        }
-        
-        .stat-icon-wrapper span {
-            font-size: 24px;
-        }
-        
-        .stat-info {
-            display: flex;
-            flex-direction: column;
             min-width: 0;
         }
-        
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-thin);
+            border-radius: var(--border-radius);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
         .stat-label {
             font-size: 11px;
-            color: var(--on-surface-variant);
+            font-weight: 500;
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            white-space: nowrap;
+            letter-spacing: 0.5px;
         }
-        
+
         .stat-value {
-            font-family: var(--font-title);
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--on-surface);
+            font-family: var(--font-mono);
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        /* Cards */
+        /* Premium Cards */
         .card {
-            background: var(--bg-glass);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: var(--md-shape-corner-large);
-            padding: 28px;
-            border: 1px solid var(--border-glass);
-            box-shadow: var(--glass-shadow);
+            background: var(--bg-card);
+            border: 1px solid var(--border-thin);
+            border-radius: var(--border-radius);
+            padding: 24px;
         }
 
         .card-title {
-            font-family: var(--font-title);
-            font-size: 20px;
+            font-size: 15px;
             font-weight: 600;
-            margin-bottom: 24px;
-            color: var(--on-surface);
+            color: var(--text-primary);
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-
-        .card-title span {
-            color: var(--primary-light);
+            gap: 8px;
         }
 
         /* Form Inputs */
         .form-group {
-            position: relative;
-            margin-bottom: 24px;
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
         }
 
         .text-field-outlined {
             width: 100%;
-            padding: 16px;
-            font-size: 15px;
-            font-family: var(--font-body);
-            border: 1px solid var(--outline);
-            border-radius: var(--md-shape-corner-small);
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--on-surface);
+            height: 40px;
+            padding: 0 12px;
+            font-size: 14px;
+            font-family: var(--font-sans);
+            border: 1px solid var(--border-thin);
+            border-radius: var(--border-radius);
+            background: var(--bg-input);
+            color: var(--text-primary);
             outline: none;
-            transition: all 0.2s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .text-field-outlined::placeholder {
+            color: #52525B;
         }
 
         .text-field-outlined:focus {
-            border-color: var(--outline-focus);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 4px var(--primary-glow);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.25);
         }
 
-        .floating-label {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            padding: 0 4px;
-            color: var(--on-surface-variant);
-            font-size: 15px;
-            pointer-events: none;
-            transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1) all;
-        }
-
-        .text-field-outlined:focus ~ .floating-label,
-        .text-field-outlined:not(:placeholder-shown) ~ .floating-label {
-            top: 0;
-            font-size: 11px;
-            color: var(--primary-light);
-            background: #110e1d; /* Solid color covering backdrop line */
-            font-weight: 500;
-        }
-
-        /* Material Button */
+        /* Button Styling */
         .btn-filled {
+            width: 100%;
+            height: 40px;
+            background: var(--accent-blue);
+            color: var(--text-primary);
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: #ffffff;
-            border: none;
-            padding: 0 24px;
-            height: 50px;
-            font-size: 15px;
-            font-weight: 600;
-            font-family: var(--font-title);
-            border-radius: var(--md-shape-corner-extra-large);
-            cursor: pointer;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 4px 15px 0 rgba(157, 78, 221, 0.25);
-            transition: all 0.25s ease;
+            gap: 6px;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease;
         }
 
         .btn-filled:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px 0 rgba(157, 78, 221, 0.4);
+            background-color: #0077ed;
+        }
+
+        .btn-filled:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.4);
         }
 
         .btn-filled:active {
-            transform: translateY(1px);
+            background-color: #0062c3;
         }
 
-        /* Search Input */
+        /* Search Input container */
         .search-container {
             position: relative;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
         }
-        
+
         .search-field {
             width: 100%;
-            padding: 14px 44px 14px 44px;
-            font-size: 14px;
-            font-family: var(--font-body);
-            border: 1px solid var(--outline);
-            border-radius: var(--md-shape-corner-small);
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--on-surface);
+            height: 38px;
+            padding: 0 12px 0 36px;
+            font-size: 13px;
+            font-family: var(--font-sans);
+            border: 1px solid var(--border-thin);
+            border-radius: var(--border-radius);
+            background: var(--bg-input);
+            color: var(--text-primary);
             outline: none;
-            transition: all 0.2s ease;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
-        
+
+        .search-field::placeholder {
+            color: #52525B;
+        }
+
         .search-field:focus {
-            border-color: var(--outline-focus);
-            background: rgba(255, 255, 255, 0.05);
-            box-shadow: 0 0 0 4px var(--primary-glow);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.25);
         }
-        
+
         .search-icon {
             position: absolute;
-            left: 14px;
-            color: var(--on-surface-variant);
+            left: 12px;
+            color: var(--text-muted);
             pointer-events: none;
         }
-        
+
         .btn-clear {
             position: absolute;
-            right: 14px;
+            right: 10px;
             background: none;
             border: none;
-            color: var(--on-surface-variant);
+            color: var(--text-muted);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            transition: background-color 0.2s;
-        }
-        
-        .btn-clear:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--on-surface);
+            border-radius: 4px;
+            width: 20px;
+            height: 20px;
+            padding: 0;
+            transition: color 0.15s ease, background-color 0.15s ease;
         }
 
-        /* Links List */
+        .btn-clear:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        /* Dynamic Links container */
         .links-container {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
         }
 
+        /* Link Items (Premium Search Engine style) */
         .link-item {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            align-items: center;
-            padding: 18px 24px;
-            border-radius: var(--md-shape-corner-medium);
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-thin);
+            border-radius: var(--border-radius);
             gap: 16px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
         }
 
         .link-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--outline-focus);
-            box-shadow: 0 4px 15px 0 rgba(157, 78, 221, 0.1);
-            transform: translateX(4px);
+            border-color: var(--accent-blue);
+            box-shadow: 0 4px 12px rgba(0, 113, 227, 0.05);
         }
 
-        .link-info {
+        .link-item-content {
             display: flex;
             flex-direction: column;
             gap: 6px;
             min-width: 0;
+            flex-grow: 1;
         }
 
-        .short-url-row {
+        .link-item-header {
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .short-url-link {
-            font-family: var(--font-title);
-            font-weight: 600;
-            font-size: 16px;
-            color: var(--primary-light);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
             text-decoration: none;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            letter-spacing: -0.3px;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s ease, color 0.15s ease;
         }
 
         .short-url-link:hover {
-            text-decoration: underline;
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
         }
 
-        .btn-icon-copy {
-            background: none;
-            border: none;
-            color: var(--on-surface-variant);
-            cursor: pointer;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .btn-icon-copy:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: var(--primary-light);
-            transform: scale(1.1);
-        }
-        
-        .btn-icon-copy.copied {
-            color: var(--success) !important;
-        }
-
-        .long-url-row {
+        .link-item-summary {
+            font-family: var(--font-sans);
             font-size: 13px;
-            color: var(--on-surface-variant);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            line-height: 1.4;
+            color: var(--text-muted);
+            word-break: break-word;
         }
 
-        .long-url-row span {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        .no-summary {
+            color: #52525B;
+            font-style: italic;
         }
 
-        .meta-row {
-            font-size: 11px;
-            color: var(--on-surface-variant);
-            opacity: 0.6;
-            margin-top: 2px;
+        .link-item-destination {
             display: flex;
             align-items: center;
             gap: 4px;
+            font-size: 11px;
+            color: #52525B;
+            min-width: 0;
         }
 
-        .link-actions {
+        .dest-icon {
+            flex-shrink: 0;
+            color: #52525B;
+        }
+
+        .destination-link {
+            color: #52525B;
+            text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: color 0.15s ease;
+        }
+
+        .destination-link:hover {
+            color: var(--text-muted);
+        }
+
+        .link-item-meta {
+            font-size: 10px;
+            color: #52525B;
+        }
+
+        .link-item-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
-        .btn-icon-delete {
-            background: none;
-            border: none;
-            color: var(--on-surface-variant);
-            cursor: pointer;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
+        .action-btn {
+            width: 28px;
+            height: 28px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s;
+            background: var(--bg-input);
+            border: 1px solid var(--border-thin);
+            border-radius: 6px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
         }
 
-        .btn-icon-delete:hover {
-            background-color: var(--error-container);
-            color: var(--error);
-            transform: scale(1.05);
+        .action-btn:hover {
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+            background-color: var(--bg-card);
         }
 
-        /* Empty state */
+        .action-btn-delete:hover {
+            color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        .action-btn:focus-visible {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+        }
+
+        /* Empty State */
         .empty-state {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 56px 24px;
-            color: var(--on-surface-variant);
+            padding: 48px 24px;
+            color: #52525B;
             text-align: center;
-            gap: 16px;
+            gap: 12px;
         }
 
-        .empty-state span {
-            font-size: 56px;
-            color: var(--outline);
-            animation: pulse 2s infinite ease-in-out;
+        .empty-state svg {
+            color: var(--border-thin);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.05); opacity: 0.8; }
-            100% { transform: scale(1); opacity: 0.5; }
+        .empty-state p {
+            font-size: 13px;
         }
 
-        /* Toast Notifications */
+        /* Toast Container */
         .toast-container {
             position: fixed;
             bottom: 24px;
             left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(22, 20, 38, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-glass);
-            color: var(--on-surface);
-            padding: 14px 28px;
-            border-radius: var(--md-shape-corner-medium);
-            font-size: 14px;
+            transform: translateX(-50%) translateY(16px);
+            background: var(--bg-card);
+            border: 1px solid var(--border-thin);
+            color: var(--text-primary);
+            padding: 12px 18px;
+            border-radius: var(--border-radius);
+            font-size: 13px;
             font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
             z-index: 1000;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
             pointer-events: none;
         }
 
         .toast-container.show {
+            opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
 
-        .toast-container .icon {
-            font-size: 20px;
+        .toast-success {
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .toast-error {
+            border-left: 3px solid var(--accent-red);
         }
     </style>
 </head>
 <body>
 
-    <div class="ambient-glow bg-glow-1"></div>
-    <div class="ambient-glow bg-glow-2"></div>
-
     <header class="app-bar">
         <div class="app-logo-container">
-            <h1 class="app-logo">
-                <span class="material-symbols-outlined logo-icon">link</span>
-                Mercury
-            </h1>
-            <span class="app-subtitle">URL Shortener</span>
+            <svg class="logo-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+            </svg>
+            <span class="app-logo">Mercury</span>
+            <span class="app-tagline">Link Manager</span>
         </div>
     </header>
 
@@ -602,42 +530,38 @@
             <!-- Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-icon-wrapper">
-                        <span class="material-symbols-outlined">link</span>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Keys</span>
-                        <span class="stat-value" id="total-links-count">0</span>
-                    </div>
+                    <span class="stat-label">Total Keys</span>
+                    <span class="stat-value" id="total-links-count">0</span>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon-wrapper">
-                        <span class="material-symbols-outlined">dns</span>
-                    </div>
-                    <div class="stat-info">
-                        <span class="stat-label">Domain</span>
-                        <span class="stat-value" id="target-domain-val">loading...</span>
-                    </div>
+                    <span class="stat-label">Domain</span>
+                    <span class="stat-value" id="target-domain-val">loading...</span>
                 </div>
             </div>
 
             <!-- Form -->
             <div class="card">
                 <h2 class="card-title">
-                    <span class="material-symbols-outlined">add_link</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
                     Shorten a link
                 </h2>
                 <form id="shorten-form">
                     <div class="form-group">
-                        <input type="text" id="key" class="text-field-outlined" placeholder=" " required autocomplete="off">
-                        <label for="key" class="floating-label">Short Key (e.g. search)</label>
+                        <label for="key" class="form-label">Short Key</label>
+                        <input type="text" id="key" class="text-field-outlined" placeholder="e.g. search" required autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <input type="text" id="url" class="text-field-outlined" placeholder=" " required autocomplete="off">
-                        <label for="url" class="floating-label">Destination URL</label>
+                        <label for="url" class="form-label">Destination URL</label>
+                        <input type="text" id="url" class="text-field-outlined" placeholder="https://example.com" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="summary" class="form-label">Summary Snippet</label>
+                        <input type="text" id="summary" class="text-field-outlined" placeholder="Why did you save this link?" autocomplete="off">
                     </div>
                     <button type="submit" class="btn-filled">
-                        <span class="material-symbols-outlined">bolt</span>
                         Create Short URL
                     </button>
                 </form>
@@ -648,23 +572,40 @@
         <section class="main-content">
             <div class="card">
                 <h2 class="card-title">
-                    <span class="material-symbols-outlined">list</span>
-                    Shortlinks
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    Active Redirection Keys
                 </h2>
                 
                 <!-- Search container -->
                 <div class="search-container">
-                    <span class="material-symbols-outlined search-icon">search</span>
-                    <input type="text" id="search-input" class="search-field" placeholder="Search keys or destination URLs...">
+                    <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="search-input" class="search-field" placeholder="Search keys, URLs, or summaries...">
                     <button id="search-clear" class="btn-clear" style="display: none;" title="Clear search">
-                        <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                     </button>
                 </div>
 
                 <div id="links-list-container" class="links-container">
                     <!-- Dynamic Link Items will go here -->
                     <div class="empty-state" id="empty-state">
-                        <span class="material-symbols-outlined">link_off</span>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            <line x1="2" y1="2" x2="22" y2="22"></line>
+                        </svg>
                         <p>No active short links found. Create one to get started!</p>
                     </div>
                 </div>
@@ -673,8 +614,7 @@
     </main>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast-container">
-        <span class="material-symbols-outlined icon" id="toast-icon">info</span>
+    <div id="toast" class="toast-container" role="alert">
         <span id="toast-msg">Link created successfully</span>
     </div>
 
@@ -684,7 +624,6 @@
         const emptyState = document.getElementById('empty-state');
         const toast = document.getElementById('toast');
         const toastMsg = document.getElementById('toast-msg');
-        const toastIcon = document.getElementById('toast-icon');
         const searchInput = document.getElementById('search-input');
         const searchClear = document.getElementById('search-clear');
 
@@ -693,8 +632,12 @@
 
         function showNotification(message, isSuccess = true) {
             toastMsg.textContent = message;
-            toastIcon.textContent = isSuccess ? 'check_circle' : 'error';
-            toastIcon.style.color = isSuccess ? '#06d6a0' : '#ff4d6d';
+            toast.className = 'toast-container'; // reset classes
+            if (isSuccess) {
+                toast.classList.add('toast-success');
+            } else {
+                toast.classList.add('toast-error');
+            }
             toast.classList.add('show');
             clearTimeout(showToastTimeout);
             showToastTimeout = setTimeout(() => {
@@ -740,8 +683,10 @@
         function filterAndRenderLinks() {
             const query = searchInput.value.toLowerCase().trim();
             const filtered = allLinks.filter(link => {
+                const summary = localStorage.getItem('mercury_meta_' + link.key) || '';
                 return link.key.toLowerCase().includes(query) || 
                        link.url.toLowerCase().includes(query) ||
+                       summary.toLowerCase().includes(query) ||
                        (link.domain && link.domain.toLowerCase().includes(query));
             });
             renderLinks(filtered);
@@ -749,29 +694,48 @@
 
         function renderLinks(links) {
             const items = (links || []).map(link => {
-                const domain = link.domain.split(':')[0];
-                const shortUrl = `http://mercury.${domain}/${link.key}`;
+                const shortUrl = `http://mercury.${link.domain}/${link.key}`;
+                const summary = localStorage.getItem('mercury_meta_' + link.key) || '';
+                
                 return `
                     <div class="link-item">
-                        <div class="link-info">
-                            <div class="short-url-row">
-                                <a href="${shortUrl}" target="_blank" class="short-url-link">${shortUrl}</a>
-                                <button class="btn-icon-copy" onclick="copyToClipboard('${shortUrl}', this)" title="Copy link">
-                                    <span class="material-symbols-outlined" style="font-size: 18px;">content_copy</span>
-                                </button>
+                        <div class="link-item-content">
+                            <div class="link-item-header">
+                                <a href="${shortUrl}" target="_blank" rel="noopener noreferrer" class="short-url-link">${shortUrl}</a>
                             </div>
-                            <div class="long-url-row">
-                                <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">arrow_forward</span>
-                                <span>${escapeHtml(link.url)}</span>
+                            <div class="link-item-summary">
+                                ${summary ? escapeHtml(summary) : '<span class="no-summary">No summary snippet available.</span>'}
                             </div>
-                            <div class="meta-row">
-                                <span class="material-symbols-outlined" style="font-size: 11px;">schedule</span>
-                                Created on: ${new Date(link.created_at).toLocaleString()}
+                            <div class="link-item-destination">
+                                <svg class="dest-icon" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                                <a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer" class="destination-link" title="${escapeHtml(link.url)}">${escapeHtml(link.url)}</a>
+                            </div>
+                            <div class="link-item-meta">
+                                Created on ${new Date(link.created_at).toLocaleDateString()} at ${new Date(link.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                             </div>
                         </div>
-                        <div class="link-actions">
-                            <button class="btn-icon-delete" onclick="deleteLink('${link.key}')" title="Delete link">
-                                <span class="material-symbols-outlined">delete</span>
+                        <div class="link-item-actions">
+                            <button class="action-btn" onclick="copyToClipboard('${shortUrl}', this)" aria-label="Copy Link" title="Copy Link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                            <a href="${shortUrl}" target="_blank" rel="noopener noreferrer" class="action-btn" aria-label="Open Link in new tab" title="Open Link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                            </a>
+                            <button class="action-btn action-btn-delete" onclick="deleteLink('${link.key}')" aria-label="Delete Link" title="Delete Link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                </svg>
                             </button>
                         </div>
                     </div>
@@ -799,15 +763,22 @@
                 await navigator.clipboard.writeText(text);
                 showNotification('Copied short URL to clipboard!');
                 
-                // Visual feedback micro-animation on the copy button
-                const iconElement = btnElement.querySelector('span');
-                iconElement.textContent = 'check';
-                btnElement.classList.add('copied');
+                const svgElement = btnElement.querySelector('svg');
+                const originalHTML = svgElement.outerHTML;
+                
+                btnElement.style.color = 'var(--accent-green)';
+                btnElement.style.borderColor = 'var(--accent-green)';
+                btnElement.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                `;
                 
                 setTimeout(() => {
-                    iconElement.textContent = 'content_copy';
-                    btnElement.classList.remove('copied');
-                }, 2000);
+                    btnElement.style.color = '';
+                    btnElement.style.borderColor = '';
+                    btnElement.innerHTML = originalHTML;
+                }, 1500);
             } catch (err) {
                 showNotification('Failed to copy link', false);
             }
@@ -834,6 +805,7 @@
             e.preventDefault();
             const key = document.getElementById('key').value.trim();
             let url = document.getElementById('url').value.trim();
+            const summary = document.getElementById('summary').value.trim();
 
             if (!key || !url) return;
 
@@ -857,12 +829,19 @@
                     throw new Error(result.error || 'Failed to create link');
                 }
 
+                // If successful, save summary to localStorage
+                if (summary) {
+                    localStorage.setItem('mercury_meta_' + key, summary);
+                }
+
                 showNotification('Link created successfully!');
                 document.getElementById('key').value = '';
                 document.getElementById('url').value = '';
-                // Focus out floating labels
+                document.getElementById('summary').value = '';
+                
                 document.getElementById('key').blur();
                 document.getElementById('url').blur();
+                document.getElementById('summary').blur();
                 
                 fetchLinks();
             } catch (error) {
@@ -884,6 +863,9 @@
                     const result = await getResponseData(response);
                     throw new Error(result.error || 'Failed to delete link');
                 }
+
+                // If successful, clean up localStorage summary
+                localStorage.removeItem('mercury_meta_' + key);
 
                 showNotification('Link deleted successfully');
                 fetchLinks();
