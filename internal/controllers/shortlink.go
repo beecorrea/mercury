@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 
@@ -31,6 +32,27 @@ type ShortenRequest struct {
 	Domain string `json:"domain"`
 }
 
+// Clean trims leading and trailing spaces from all request fields.
+func (r *ShortenRequest) Clean() {
+	r.Key = strings.TrimSpace(r.Key)
+	r.Domain = strings.TrimSpace(r.Domain)
+	r.URL = strings.TrimSpace(r.URL)
+}
+
+// Validate checks if the fields are non-empty and if the URL format is a valid absolute URL.
+func (r *ShortenRequest) Validate() error {
+	if r.Key == "" || r.Domain == "" || r.URL == "" {
+		return errors.New("key, domain, and url are required")
+	}
+
+	u, err := url.Parse(r.URL)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return errors.New("destination must be a valid absolute URL (e.g. https://google.com)")
+	}
+
+	return nil
+}
+
 // CreateShortlink handles POST /api/shorten.
 func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 	var req ShortenRequest
@@ -38,23 +60,12 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
-	req.Key = strings.TrimSpace(req.Key)
-	req.Domain = strings.TrimSpace(req.Domain)
-	req.URL = strings.TrimSpace(req.URL)
-
-	if req.Key == "" || req.Domain == "" || req.URL == "" {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "key, domain, and url are required"})
+	req.Clean()
+	if err := req.Validate(); err != nil {
+		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	// Validate target URL format
-	u, err := url.Parse(req.URL)
-	if err != nil || u.Scheme == "" || u.Host == "" {
-		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "destination must be a valid absolute URL (e.g. https://google.com)"})
-	}
-
-	// Persist shortlink using the service
-	err = c.Service.CreateShortlink(req.Key, req.URL, req.Domain)
-	if err != nil {
+	if err := c.Service.CreateShortlink(req.Key, req.URL, req.Domain); err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "short key is already in use"})
 		}
