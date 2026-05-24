@@ -15,8 +15,11 @@ func (s *Server) setupRoutes(redirectSvc *service.RedirectService, shortlinkSvc 
 	dashboardController := controllers.NewDashboardController()
 
 	// Register Routes
-	s.App.Get("/", dashboardController.ServeDashboard)
-	s.App.Get("/api/links", shortlinkController.ListShortlinks)
-	s.App.Post("/api/shorten", shortlinkController.CreateShortlink)
-	s.App.Delete("/api/links/:key", shortlinkController.DeleteShortlink)
+	dashboard := s.App.Group("/")
+	dashboard.Get("/", dashboardController.ServeDashboard)
+
+	api := s.App.Group("/api")
+	api.Get("/links", shortlinkController.ListShortlinks)
+	api.Post("/shorten", shortlinkController.CreateShortlink)
+	api.Delete("/links/:key", shortlinkController.DeleteShortlink)
 }
