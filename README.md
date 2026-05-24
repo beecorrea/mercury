@@ -63,6 +63,14 @@ go test -v ./...
 
 ---
 
+## Feature Demo
+
+Watch a short demonstration video showcasing the core features (adding a shortlink, redirecting via a short subdomain URL, and deleting active redirection keys):
+
+![Mercury Features Demo](resources/demo_features.webm)
+
+---
+
 ## Documentation & Reference
 
 ### Architecture
