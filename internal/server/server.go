@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/beecorrea/shortlinks/internal/config"
@@ -11,8 +12,9 @@ import (
 )
 
 type Server struct {
-	App *fiber.App
-	db  *database.RedirectDB
+	App    *fiber.App
+	db     *database.RedirectDB
+	cancel context.CancelFunc
 }
 
 func NewServer(cfg *config.Config) (*Server, error) {
@@ -25,13 +27,18 @@ func NewServer(cfg *config.Config) (*Server, error) {
 	scraperImpl := scraper.NewHTTPScraper()
 	shortlinkSvc := service.NewShortlinkService(db, scraperImpl)
 
+	retrier := service.NewScrapeRetrier(db, scraperImpl, cfg.ScrapeRetryInterval, cfg.ScrapeMaxAttempts)
+	ctx, cancel := context.WithCancel(context.Background())
+	go retrier.Start(ctx)
+
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: true,
 	})
 
 	s := &Server{
-		App: app,
-		db:  db,
+		App:    app,
+		db:     db,
+		cancel: cancel,
 	}
 
 	s.setupRoutes(cfg, redirectSvc, shortlinkSvc)
@@ -44,5 +51,7 @@ func (s *Server) Start(addr string) error {
 }
 
 func (s *Server) Close() error {
+	s.cancel()
 	return s.db.Close()
 }
+

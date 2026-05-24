@@ -38,6 +38,7 @@ func migrate(db *sql.DB) error {
 		return err
 	}
 	_, _ = db.Exec("ALTER TABLE links ADD COLUMN summary TEXT")
+	_, _ = db.Exec("ALTER TABLE links ADD COLUMN scrape_attempts INTEGER NOT NULL DEFAULT 0")
 	return nil
 }
 
@@ -51,7 +52,7 @@ func (r *RedirectDB) GetShortlinkByKey(key string) (*structs.Shortlink, error) {
 
 	var s structs.Shortlink
 	var summary sql.NullString
-	err := row.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.CreatedAt)
+	err := row.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.ScrapeAttempts, &s.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
@@ -72,7 +73,7 @@ func (r *RedirectDB) ListShortlinks() ([]structs.Shortlink, error) {
 	for rows.Next() {
 		var s structs.Shortlink
 		var summary sql.NullString
-		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.CreatedAt); err != nil {
+		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.ScrapeAttempts, &s.CreatedAt); err != nil {
 			return nil, err
 		}
 		s.Summary = summary.String
@@ -83,5 +84,39 @@ func (r *RedirectDB) ListShortlinks() ([]structs.Shortlink, error) {
 
 func (r *RedirectDB) DeleteShortlink(key string) error {
 	_, err := r.db.Exec(queryDeleteShortlink, key)
+	return err
+}
+
+// ListFailedScrapes returns shortlinks whose summary indicates a failed scrape
+// and whose retry attempts have not yet reached maxAttempts.
+func (r *RedirectDB) ListFailedScrapes(maxAttempts int) ([]structs.Shortlink, error) {
+	rows, err := r.db.Query(queryListFailedScrapes, maxAttempts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var shortlinks []structs.Shortlink
+	for rows.Next() {
+		var s structs.Shortlink
+		var summary sql.NullString
+		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &summary, &s.ScrapeAttempts, &s.CreatedAt); err != nil {
+			return nil, err
+		}
+		s.Summary = summary.String
+		shortlinks = append(shortlinks, s)
+	}
+	return shortlinks, nil
+}
+
+// UpdateSummary updates the summary text for the shortlink identified by key.
+func (r *RedirectDB) UpdateSummary(key, summary string) error {
+	_, err := r.db.Exec(queryUpdateSummary, summary, key)
+	return err
+}
+
+// IncrementScrapeAttempts atomically increments the scrape_attempts counter for the given key.
+func (r *RedirectDB) IncrementScrapeAttempts(key string) error {
+	_, err := r.db.Exec(queryIncrementScrapeAttempts, key)
 	return err
 }
