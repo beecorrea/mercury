@@ -21,6 +21,11 @@ func NewRedirectService(db *database.RedirectDB, domain string) *RedirectService
 // It only handles requests whose hostname matches the configured domain or a subdomain of it.
 // API routes (/api/*) are always bypassed.
 func (s *RedirectService) GetRedirectKey(host, path string) string {
+	hasPort := strings.Contains(host, ":")
+	if hasPort {
+		host = strings.Split(host, ":")[0]
+	}
+
 	if host != s.domain && !strings.HasSuffix(host, "."+s.domain) {
 		return ""
 	}
