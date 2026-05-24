@@ -1,0 +1,6 @@
+# Caddyfile — Mercury reverse proxy
+
+http://mercury.localhost http://mercury.test http://mercury https://mercury.test https://mercury {
+    tls internal
+    reverse_proxy mercury:45800
+}
