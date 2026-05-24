@@ -1,0 +1,15 @@
+services:
+  mercury:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "45800:45800"
+    environment:
+      MERCURY_DB_PATH: /data/mercury.db
+      MERCURY_DOMAIN: localhost
+      MERCURY_PORT: "45800"
+    volumes:
+      - mercury_data:/data
+
+volumes:
+  mercury_data:

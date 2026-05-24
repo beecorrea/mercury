@@ -8,7 +8,7 @@ import (
 
 type Config struct {
 	DBPath string `envconfig:"MERCURY_DB_PATH" default:"mercury.db"`
-	Domain string `envconfig:"MERCURY_DOMAIN" default:"communist.mom"`
+	Domain string `envconfig:"MERCURY_DOMAIN" default:"localhost"`
 	Port   string `envconfig:"MERCURY_PORT" default:"45800"`
 }
 

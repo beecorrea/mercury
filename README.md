@@ -49,15 +49,8 @@ Mercury routes shortlinks by matching the incoming **hostname** against `MERCURY
 
 Visiting `http://localhost:45800/ert` will redirect to the URL mapped to the `ert` key — no extra DNS configuration required for the exact hostname.
 
-To also trigger redirects from subdomains (e.g. `http://mercury.localhost:45800/ert`), you need to add a local DNS entry. On macOS/Linux, add the following to `/etc/hosts`:
+In production, set `MERCURY_DOMAIN=yourdomain.com` (or your own domain) in the environment.
 
-```
-127.0.0.1  mercury.localhost
-```
-
-> **Note:** Browser support for `.localhost` subdomains varies. If `mercury.localhost` doesn't resolve, the `/etc/hosts` entry above is the reliable workaround.
-
-In production, set `MERCURY_DOMAIN=communist.mom` (or your own domain) in the environment. Requests to `communist.mom/key` or any subdomain such as `mercury.communist.mom/key` will be redirected accordingly.
 
 
 ### Running with Docker
@@ -81,17 +74,21 @@ You can build and run the application in a secure, minimal container. To persist
 
 ### Running with Docker Compose
 
-A [docker-compose.yml](file:///Users/bianca/projects/mercury/docker-compose.yml) is provided in the repository root. This orchestrates the build process, exposes the required port, sets the `MERCURY_DB_PATH` environment variable, and configures a persistent named volume `mercury_data` to ensure the SQLite database persists across container restarts and recreations.
+The [`docker-compose.yml`](docker-compose.yml) orchestrates the Mercury service:
 
-To start the service using Docker Compose:
+- **mercury** — the app, exposed on port `45800` (access via `http://localhost:45800`)
+
+To start:
 ```bash
 docker compose up -d --build
 ```
 
-To stop the service:
+To stop:
 ```bash
 docker compose down
 ```
+
+The SQLite database is persisted in the `mercury_data` named volume.
 
 ### Running Tests
 Unit and integration test coverage can be verified by running:
