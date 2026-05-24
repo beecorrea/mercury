@@ -533,10 +533,6 @@
                     <span class="stat-label">Total Keys</span>
                     <span class="stat-value" id="total-links-count">0</span>
                 </div>
-                <div class="stat-card">
-                    <span class="stat-label">Domain</span>
-                    <span class="stat-value" id="target-domain-val">communist.mom</span>
-                </div>
             </div>
 
             <!-- Form -->
@@ -674,16 +670,6 @@
             const totalLinksCount = document.getElementById('total-links-count');
             if (totalLinksCount) {
                 totalLinksCount.textContent = allLinks.length;
-            }
-            const targetDomainVal = document.getElementById('target-domain-val');
-            if (targetDomainVal) {
-                if (allLinks.length > 0 && allLinks[0].domain) {
-                    const domain = allLinks[0].domain;
-                    // Strip port for a cleaner look if present
-                    targetDomainVal.textContent = domain.split(':')[0];
-                } else {
-                    targetDomainVal.textContent = 'communist.mom';
-                }
             }
         }
 
@@ -892,9 +878,6 @@
                 showNotification(error.message, false);
             }
         }
-
-        // Initialize domain immediately so it never shows "loading..."
-        document.getElementById('target-domain-val').textContent = 'communist.mom';
 
         // Initialize
         fetchLinks();
