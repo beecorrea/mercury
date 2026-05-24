@@ -169,7 +169,10 @@
             // Strip "mercury." subdomain prefix dynamically to get root dashboard URL
             const dashboardHost = host.replace(/^mercury\./i, '');
             const protocol = window.location.protocol;
-            document.getElementById('back-link').href = `${protocol}//${dashboardHost}/`;
+            const backLink = document.getElementById('back-link');
+            if (backLink) {
+                backLink.href = `${protocol}//${dashboardHost}/`;
+            }
         });
     </script>
 </body>
