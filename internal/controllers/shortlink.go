@@ -57,9 +57,9 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "destination must be a valid absolute URL (e.g. https://google.com)"})
 	}
 
-	// Append port number if not already present in the configured domain
+	// Append port number if localhost
 	domain := c.Domain
-	if !strings.Contains(domain, "localhost") && !strings.Contains(domain, ":") {
+	if strings.Contains(domain, "localhost") && !strings.Contains(domain, ":") {
 		domain = domain + ":" + c.Port
 	}
 
