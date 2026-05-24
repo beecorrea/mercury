@@ -59,7 +59,7 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 
 	// Append port number if not already present in the configured domain
 	domain := c.Domain
-	if !strings.Contains(domain, ":") && c.Port != "" {
+	if !strings.Contains(domain, "localhost") && !strings.Contains(domain, ":") {
 		domain = domain + ":" + c.Port
 	}
 
