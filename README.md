@@ -16,7 +16,7 @@
 ---
 
 ## Features
-
+![Mercury's dashboard showing the shortlink count, three links, stats for one link and a form to create a new one.](./resources/dashboard.png)
 - ⚡️ **High-Performance:** Sub-millisecond redirection engine built in Go with Fiber.
 - 🎨 **Modern Dashboard:** High-fidelity, minimalist dark UI with instant creation, filtering, and live state updates.
 - 📦 **Docker Ready:** Tiny, secure distroless containers with persistent volume mounts.
