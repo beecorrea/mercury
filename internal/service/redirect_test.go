@@ -74,4 +74,3 @@ func TestGetRedirectKey(t *testing.T) {
 		})
 	}
 }
-

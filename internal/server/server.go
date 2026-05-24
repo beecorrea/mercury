@@ -46,4 +46,3 @@ func (s *Server) Start(addr string) error {
 func (s *Server) Close() error {
 	return s.db.Close()
 }
-
