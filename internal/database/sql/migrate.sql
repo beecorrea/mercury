@@ -2,5 +2,7 @@ CREATE TABLE IF NOT EXISTS links (
     key TEXT PRIMARY KEY,
     url TEXT NOT NULL,
     domain TEXT NOT NULL,
+    summary TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+

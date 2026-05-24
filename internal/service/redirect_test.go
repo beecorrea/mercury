@@ -15,7 +15,7 @@ func TestRedirectService(t *testing.T) {
 	defer db.Close()
 
 	// Seed some test data directly in DB
-	err = db.CreateShortlink("g", "https://google.com", "local")
+	err = db.CreateShortlink("g", "https://google.com", "local", "Google search engine")
 	if err != nil {
 		t.Fatalf("failed to create shortlink: %v", err)
 	}

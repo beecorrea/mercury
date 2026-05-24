@@ -13,7 +13,7 @@ func TestDBOperations(t *testing.T) {
 	defer db.Close()
 
 	// Test CreateShortlink
-	err = db.CreateShortlink("g", "https://google.com", "local")
+	err = db.CreateShortlink("g", "https://google.com", "local", "Google search engine")
 	if err != nil {
 		t.Fatalf("failed to create shortlink: %v", err)
 	}
@@ -26,8 +26,8 @@ func TestDBOperations(t *testing.T) {
 	if s == nil {
 		t.Fatal("expected shortlink to be found, got nil")
 	}
-	if s.URL != "https://google.com" || s.Domain != "local" {
-		t.Errorf("expected url=https://google.com, domain=local; got url=%s, domain=%s", s.URL, s.Domain)
+	if s.URL != "https://google.com" || s.Domain != "local" || s.Summary != "Google search engine" {
+		t.Errorf("expected url=https://google.com, domain=local, summary=Google search engine; got url=%s, domain=%s, summary=%s", s.URL, s.Domain, s.Summary)
 	}
 	if s.CreatedAt.IsZero() {
 		t.Error("expected CreatedAt to be non-zero time")
@@ -35,7 +35,7 @@ func TestDBOperations(t *testing.T) {
 	t.Logf("CreatedAt value: %v", s.CreatedAt)
 
 	// Test Duplicate CreateShortlink (should fail due to UNIQUE constraint)
-	err = db.CreateShortlink("g", "https://github.com", "local")
+	err = db.CreateShortlink("g", "https://github.com", "local", "GitHub")
 	if err == nil {
 		t.Error("expected error creating duplicate key, got nil")
 	}

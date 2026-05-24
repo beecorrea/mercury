@@ -34,11 +34,15 @@ func (r *RedirectDB) Close() error {
 
 func migrate(db *sql.DB) error {
 	_, err := db.Exec(queryMigrate)
-	return err
+	if err != nil {
+		return err
+	}
+	_, _ = db.Exec("ALTER TABLE links ADD COLUMN summary TEXT")
+	return nil
 }
 
-func (r *RedirectDB) CreateShortlink(key, url, domain string) error {
-	_, err := r.db.Exec(queryInsertShortlink, key, url, domain)
+func (r *RedirectDB) CreateShortlink(key, url, domain, summary string) error {
+	_, err := r.db.Exec(queryInsertShortlink, key, url, domain, summary)
 	return err
 }
 
@@ -46,7 +50,7 @@ func (r *RedirectDB) GetShortlinkByKey(key string) (*structs.Shortlink, error) {
 	row := r.db.QueryRow(queryGetShortlinkByKey, key)
 
 	var s structs.Shortlink
-	err := row.Scan(&s.Key, &s.URL, &s.Domain, &s.CreatedAt)
+	err := row.Scan(&s.Key, &s.URL, &s.Domain, &s.Summary, &s.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
@@ -65,7 +69,7 @@ func (r *RedirectDB) ListShortlinks() ([]structs.Shortlink, error) {
 	var shortlinks []structs.Shortlink
 	for rows.Next() {
 		var s structs.Shortlink
-		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &s.CreatedAt); err != nil {
+		if err := rows.Scan(&s.Key, &s.URL, &s.Domain, &s.Summary, &s.CreatedAt); err != nil {
 			return nil, err
 		}
 		shortlinks = append(shortlinks, s)
