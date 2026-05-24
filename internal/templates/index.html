@@ -535,7 +535,7 @@
                 </div>
                 <div class="stat-card">
                     <span class="stat-label">Domain</span>
-                    <span class="stat-value" id="target-domain-val">loading...</span>
+                    <span class="stat-value" id="target-domain-val">communist.mom</span>
                 </div>
             </div>
 
@@ -892,6 +892,9 @@
                 showNotification(error.message, false);
             }
         }
+
+        // Initialize domain immediately so it never shows "loading..."
+        document.getElementById('target-domain-val').textContent = 'communist.mom';
 
         // Initialize
         fetchLinks();
