@@ -6,10 +6,21 @@ import (
 	"html"
 	"io"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
+)
+
+const (
+	userAgentHeader = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+	acceptHeader    = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+)
+
+var (
+	metaRegex    = regexp.MustCompile(`(?i)<meta\s+([^>]+)>`)
+	nameRegex    = regexp.MustCompile(`(?i)\b(?:name|property)\s*=\s*["'](?:og:)?description["']`)
+	contentRegex = regexp.MustCompile(`(?i)\bcontent\s*=\s*["']([^"']*)["']`)
+	titleRegex   = regexp.MustCompile(`(?i)<title\b[^>]*>(.*?)</title>`)
 )
 
 // HTTPScraper implements the service.Scraper interface using standard HTTP GET requests.
@@ -25,49 +36,69 @@ func NewHTTPScraper() *HTTPScraper {
 }
 
 // Scrape extracts metadata from the target URL and returns a summary description.
-func (s *HTTPScraper) Scrape(ctx context.Context, targetURL string) string {
-	parsedURL, err := url.Parse(targetURL)
-	fallbackHost := "target URL"
-	if err == nil && parsedURL.Host != "" {
-		fallbackHost = parsedURL.Host
+func (s *HTTPScraper) Scrape(ctx context.Context, targetURL string) (string, error) {
+	body, err := s.fetchHTML(ctx, targetURL)
+	if err != nil {
+		return "", err
 	}
-	defaultFallback := "Shortlink redirect to " + fallbackHost
 
-	// Limit network timeout to 3 seconds, nested under caller's context
+	summary := extractMetadata(body)
+	if summary == "" {
+		return "", fmt.Errorf("no description or title metadata found")
+	}
+
+	return summary, nil
+}
+
+// fetchHTML fetches the HTML body from the target URL, applying timeout and size constraints.
+func (s *HTTPScraper) fetchHTML(ctx context.Context, targetURL string) (string, error) {
 	scrapeCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(scrapeCtx, "GET", targetURL, nil)
+	req, err := s.buildRequest(scrapeCtx, targetURL)
 	if err != nil {
-		return defaultFallback
+		return "", fmt.Errorf("failed to create request: %w", err)
 	}
-
-	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return defaultFallback
+		return "", fmt.Errorf("HTTP request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Sprintf("Could not scrape: Site returned status %d", resp.StatusCode)
+		return "", fmt.Errorf("site returned status %d", resp.StatusCode)
 	}
 
-	// Read up to 100KB to bound memory usage
-	limitedReader := io.LimitReader(resp.Body, 100*1024)
+	body, err := readBoundedBody(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	return body, nil
+}
+
+// buildRequest constructs an http.Request with custom headers.
+func (s *HTTPScraper) buildRequest(ctx context.Context, targetURL string) (*http.Request, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", targetURL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("User-Agent", userAgentHeader)
+	req.Header.Set("Accept", acceptHeader)
+
+	return req, nil
+}
+
+// readBoundedBody reads up to 100KB of response body.
+func readBoundedBody(rc io.ReadCloser) (string, error) {
+	limitedReader := io.LimitReader(rc, 100*1024)
 	bodyBytes, err := io.ReadAll(limitedReader)
 	if err != nil {
-		return defaultFallback
+		return "", err
 	}
-
-	bodyStr := string(bodyBytes)
-	if summary := extractMetadata(bodyStr); summary != "" {
-		return summary
-	}
-
-	return defaultFallback
+	return string(bodyBytes), nil
 }
 
 // extractMetadata orchestrates metadata extraction from the HTML body string.
@@ -81,25 +112,21 @@ func extractMetadata(body string) string {
 	return ""
 }
 
-var (
-	metaRegex    = regexp.MustCompile(`(?i)<meta\s+([^>]+)>`)
-	nameRegex    = regexp.MustCompile(`(?i)\b(?:name|property)\s*=\s*["'](?:og:)?description["']`)
-	contentRegex = regexp.MustCompile(`(?i)\bcontent\s*=\s*["']([^"']*)["']`)
-	titleRegex   = regexp.MustCompile(`(?i)<title\b[^>]*>(.*?)</title>`)
-)
-
 // extractMetaDescription searches for description or og:description in meta tags.
 func extractMetaDescription(body string) string {
 	metaMatches := metaRegex.FindAllStringSubmatch(body, -1)
 	for _, match := range metaMatches {
 		attributes := match[1]
-		if nameRegex.MatchString(attributes) {
-			if contentMatch := contentRegex.FindStringSubmatch(attributes); len(contentMatch) > 1 {
-				description := html.UnescapeString(strings.TrimSpace(contentMatch[1]))
-				if description != "" {
-					return description
-				}
-			}
+		if !nameRegex.MatchString(attributes) {
+			continue
+		}
+		contentMatch := contentRegex.FindStringSubmatch(attributes)
+		if len(contentMatch) <= 1 {
+			continue
+		}
+		description := html.UnescapeString(strings.TrimSpace(contentMatch[1]))
+		if description != "" {
+			return description
 		}
 	}
 	return ""
@@ -108,8 +135,8 @@ func extractMetaDescription(body string) string {
 // extractTitle searches for the content of the <title> tag.
 func extractTitle(body string) string {
 	titleMatch := titleRegex.FindStringSubmatch(body)
-	if len(titleMatch) > 1 {
-		return html.UnescapeString(strings.TrimSpace(titleMatch[1]))
+	if len(titleMatch) <= 1 {
+		return ""
 	}
-	return ""
+	return html.UnescapeString(strings.TrimSpace(titleMatch[1]))
 }

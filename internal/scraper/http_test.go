@@ -92,10 +92,11 @@ func TestExtractTitle(t *testing.T) {
 
 func TestHTTPScraper_Scrape(t *testing.T) {
 	tests := []struct {
-		name           string
-		handler        http.HandlerFunc
-		expectedPrefix string
-		expectedExact  string
+		name          string
+		handler       http.HandlerFunc
+		expectedExact string
+		expectErr     bool
+		errSubstring  string
 	}{
 		{
 			name: "success meta description",
@@ -104,6 +105,7 @@ func TestHTTPScraper_Scrape(t *testing.T) {
 				_, _ = w.Write([]byte(`<html><head><meta name="description" content="Super desc"></head></html>`))
 			},
 			expectedExact: "Super desc",
+			expectErr:     false,
 		},
 		{
 			name: "success title fallback",
@@ -112,28 +114,32 @@ func TestHTTPScraper_Scrape(t *testing.T) {
 				_, _ = w.Write([]byte(`<html><head><title>Only Title</title></head></html>`))
 			},
 			expectedExact: "Only Title",
+			expectErr:     false,
 		},
 		{
 			name: "site returns 404 error",
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 			},
-			expectedExact: "Could not scrape: Site returned status 404",
+			expectErr:    true,
+			errSubstring: "site returned status 404",
 		},
 		{
 			name: "site returns 500 error",
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusInternalServerError)
 			},
-			expectedExact: "Could not scrape: Site returned status 500",
+			expectErr:    true,
+			errSubstring: "site returned status 500",
 		},
 		{
-			name: "empty response fallback",
+			name: "empty response error",
 			handler: func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				_, _ = w.Write([]byte(`<html><head></head></html>`))
 			},
-			expectedPrefix: "Shortlink redirect to ",
+			expectErr:    true,
+			errSubstring: "no description or title metadata found",
 		},
 	}
 
@@ -143,15 +149,21 @@ func TestHTTPScraper_Scrape(t *testing.T) {
 			defer server.Close()
 
 			scraper := NewHTTPScraper()
-			got := scraper.Scrape(context.Background(), server.URL)
+			got, err := scraper.Scrape(context.Background(), server.URL)
 
-			if tc.expectedExact != "" {
+			if tc.expectErr {
+				if err == nil {
+					t.Fatalf("expected error containing %q, got nil error", tc.errSubstring)
+				}
+				if !strings.Contains(err.Error(), tc.errSubstring) {
+					t.Errorf("expected error %q to contain %q", err.Error(), tc.errSubstring)
+				}
+			} else {
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
 				if got != tc.expectedExact {
 					t.Errorf("expected EXACT %q, got %q", tc.expectedExact, got)
-				}
-			} else if tc.expectedPrefix != "" {
-				if !strings.HasPrefix(got, tc.expectedPrefix) {
-					t.Errorf("expected PREFIX %q, got %q", tc.expectedPrefix, got)
 				}
 			}
 		})
@@ -169,9 +181,13 @@ func TestHTTPScraper_Scrape_Timeout(t *testing.T) {
 	defer cancel()
 
 	scraper := NewHTTPScraper()
-	got := scraper.Scrape(ctx, server.URL)
+	_, err := scraper.Scrape(ctx, server.URL)
 
-	if !strings.HasPrefix(got, "Shortlink redirect to ") {
-		t.Errorf("expected fallback message on timeout, got %q", got)
+	if err == nil {
+		t.Fatal("expected error on timeout, got nil")
+	}
+
+	if !strings.Contains(err.Error(), "context deadline exceeded") && !strings.Contains(err.Error(), "canceled") {
+		t.Errorf("expected timeout or cancellation error, got: %v", err)
 	}
 }

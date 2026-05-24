@@ -6,6 +6,6 @@ import "context"
 type Scraper interface {
 	// Scrape extracts a description/summary or title from the target URL.
 	// It accepts a context for cancellation and timeout propagation.
-	// It must always return a fallback description, never an empty string.
-	Scrape(ctx context.Context, targetURL string) string
+	// It returns the extracted string and an error if the scrape failed.
+	Scrape(ctx context.Context, targetURL string) (string, error)
 }

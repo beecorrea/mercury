@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/beecorrea/shortlinks/internal/service"
+	"github.com/beecorrea/shortlinks/internal/structs"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -63,7 +64,11 @@ func (c *ShortlinkController) CreateShortlink(ctx *fiber.Ctx) error {
 	}
 
 	// Persist shortlink using the service
-	err = c.Service.CreateShortlink(ctx.UserContext(), req.Key, req.URL, domain)
+	err = c.Service.CreateShortlink(ctx.UserContext(), structs.Shortlink{
+		Key:    req.Key,
+		URL:    req.URL,
+		Domain: domain,
+	})
 	if err != nil {
 		if strings.Contains(err.Error(), "UNIQUE constraint failed") {
 			return ctx.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "short key is already in use"})

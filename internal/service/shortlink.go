@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"net/url"
 
 	"github.com/beecorrea/shortlinks/internal/database"
 	"github.com/beecorrea/shortlinks/internal/structs"
@@ -23,9 +24,19 @@ func NewShortlinkService(db *database.RedirectDB, scraper Scraper) *ShortlinkSer
 }
 
 // CreateShortlink persists a new shortlink with scraped web metadata context.
-func (s *ShortlinkService) CreateShortlink(ctx context.Context, key, url, domain string) error {
-	summary := s.scraper.Scrape(ctx, url)
-	if err := s.db.CreateShortlink(key, url, domain, summary); err != nil {
+func (s *ShortlinkService) CreateShortlink(ctx context.Context, link structs.Shortlink) error {
+	summary, err := s.scraper.Scrape(ctx, link.URL)
+	if err != nil {
+		// Fallback to custom error description if scraping fails
+		parsedURL, parseErr := url.Parse(link.URL)
+		fallbackHost := "target URL"
+		if parseErr == nil && parsedURL.Host != "" {
+			fallbackHost = parsedURL.Host
+		}
+		summary = fmt.Sprintf("Could not scrape %s: %v", fallbackHost, err)
+	}
+
+	if err := s.db.CreateShortlink(link.Key, link.URL, link.Domain, summary); err != nil {
 		return fmt.Errorf("creating shortlink: %w", err)
 	}
 	return nil
