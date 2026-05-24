@@ -9,15 +9,19 @@ import (
 )
 
 type RedirectService struct {
-	db *database.RedirectDB
+	db     *database.RedirectDB
+	domain string
 }
 
-func NewRedirectService(db *database.RedirectDB) *RedirectService {
-	return &RedirectService{db: db}
+func NewRedirectService(db *database.RedirectDB, domain string) *RedirectService {
+	return &RedirectService{db: db, domain: domain}
 }
 
+// GetRedirectKey extracts the shortlink key from a request.
+// It only handles requests whose hostname matches the configured domain or a subdomain of it.
+// API routes (/api/*) are always bypassed.
 func (s *RedirectService) GetRedirectKey(host, path string) string {
-	if host != "mercury" && !strings.HasPrefix(host, "mercury.") {
+	if host != s.domain && !strings.HasSuffix(host, "."+s.domain) {
 		return ""
 	}
 

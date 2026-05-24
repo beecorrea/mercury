@@ -20,7 +20,7 @@ func TestRedirectService(t *testing.T) {
 		t.Fatalf("failed to create shortlink: %v", err)
 	}
 
-	svc := NewRedirectService(db)
+	svc := NewRedirectService(db, "local")
 
 	// Test GetShortlinkByKey
 	s, err := svc.GetShortlinkByKey("g")
@@ -45,24 +45,33 @@ func TestRedirectService(t *testing.T) {
 }
 
 func TestGetRedirectKey(t *testing.T) {
-	svc := NewRedirectService(nil)
-
 	tests := []struct {
-		host string
-		path string
-		want string
+		name   string
+		domain string
+		host   string
+		path   string
+		want   string
 	}{
-		{"mercury.local", "/testkey", "testkey"},
-		{"mercury", "/testkey", "testkey"},
-		{"mercury.communist.mom", "/somekey", "somekey"},
-		{"localhost", "/testkey", ""},
-		{"mercury.local", "/api/links", ""},
+		// Production domain
+		{"exact domain match", "communist.mom", "communist.mom", "/testkey", "testkey"},
+		{"subdomain match", "communist.mom", "mercury.communist.mom", "/somekey", "somekey"},
+		// Localhost (development)
+		{"localhost exact match", "localhost", "localhost", "/ert", "ert"},
+		{"localhost subdomain match", "localhost", "mercury.localhost", "/testkey", "testkey"},
+		// API bypass
+		{"api route bypassed", "localhost", "localhost", "/api/links", ""},
+		// Wrong host
+		{"unrelated host ignored", "communist.mom", "localhost", "/testkey", ""},
 	}
 
 	for _, tc := range tests {
-		got := svc.GetRedirectKey(tc.host, tc.path)
-		if got != tc.want {
-			t.Errorf("GetRedirectKey(%q, %q) = %q; want %q", tc.host, tc.path, got, tc.want)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			svc := NewRedirectService(nil, tc.domain)
+			got := svc.GetRedirectKey(tc.host, tc.path)
+			if got != tc.want {
+				t.Errorf("GetRedirectKey(%q, %q) = %q; want %q", tc.host, tc.path, got, tc.want)
+			}
+		})
 	}
 }
+

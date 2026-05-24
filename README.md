@@ -41,7 +41,24 @@
    ```
 3. Open the browser:
    * Dashboard: `http://localhost:45800`
-   * Target shortlink redirects occur when hostnames start with `mercury.`, such as `http://mercury.localhost:45800/key`.
+   * Shortlink redirects are triggered when the request hostname matches `MERCURY_DOMAIN` (default: `localhost`) or any subdomain of it.
+
+### Local DNS Setup for Subdomain Routing
+
+Mercury routes shortlinks by matching the incoming **hostname** against `MERCURY_DOMAIN`. When running locally, the domain is `localhost` (set via `.env`).
+
+Visiting `http://localhost:45800/ert` will redirect to the URL mapped to the `ert` key — no extra DNS configuration required for the exact hostname.
+
+To also trigger redirects from subdomains (e.g. `http://mercury.localhost:45800/ert`), you need to add a local DNS entry. On macOS/Linux, add the following to `/etc/hosts`:
+
+```
+127.0.0.1  mercury.localhost
+```
+
+> **Note:** Browser support for `.localhost` subdomains varies. If `mercury.localhost` doesn't resolve, the `/etc/hosts` entry above is the reliable workaround.
+
+In production, set `MERCURY_DOMAIN=communist.mom` (or your own domain) in the environment. Requests to `communist.mom/key` or any subdomain such as `mercury.communist.mom/key` will be redirected accordingly.
+
 
 ### Running with Docker
 

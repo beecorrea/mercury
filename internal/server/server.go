@@ -21,7 +21,7 @@ func NewServer(cfg *config.Config) (*Server, error) {
 		return nil, fmt.Errorf("initializing database: %w", err)
 	}
 
-	redirectSvc := service.NewRedirectService(db)
+	redirectSvc := service.NewRedirectService(db, cfg.Domain)
 	scraperImpl := scraper.NewHTTPScraper()
 	shortlinkSvc := service.NewShortlinkService(db, scraperImpl)
 

@@ -62,7 +62,7 @@ func TestServer(t *testing.T) {
 
 	// 3. Test Host-based Redirect for existing key
 	req = httptest.NewRequest("GET", "/testkey", nil)
-	req.Host = "mercury.local"
+	req.Host = "mercury.communist.mom"
 	resp, err = srv.App.Test(req)
 	if err != nil {
 		t.Fatalf("failed to run request: %v", err)
@@ -79,7 +79,7 @@ func TestServer(t *testing.T) {
 
 	// 4. Test Host-based Redirect for missing key
 	req = httptest.NewRequest("GET", "/missingkey", nil)
-	req.Host = "mercury.local"
+	req.Host = "mercury.communist.mom"
 	resp, err = srv.App.Test(req)
 	if err != nil {
 		t.Fatalf("failed to run request: %v", err)
@@ -109,7 +109,7 @@ func TestServer(t *testing.T) {
 
 	// 6. Test Mercury Host serves Dashboard on empty key (root path)
 	req = httptest.NewRequest("GET", "/", nil)
-	req.Host = "mercury.local"
+	req.Host = "mercury.communist.mom"
 	resp, err = srv.App.Test(req)
 	if err != nil {
 		t.Fatalf("failed to run request: %v", err)
