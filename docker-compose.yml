@@ -2,14 +2,37 @@ services:
   mercury:
     build: .
     restart: unless-stopped
-    ports:
-      - "45800:45800"
+    expose:
+      - "45800"
     environment:
       MERCURY_DB_PATH: /data/mercury.db
-      MERCURY_DOMAIN: localhost
+      MERCURY_DOMAIN: mercury
       MERCURY_PORT: "45800"
     volumes:
       - mercury_data:/data
+    networks:
+      - mercury_net
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - mercury_net
+    depends_on:
+      - mercury
+
+networks:
+  mercury_net:
+    driver: bridge
 
 volumes:
   mercury_data:
+  caddy_data:
+  caddy_config:
