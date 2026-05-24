@@ -139,39 +139,20 @@
             min-width: 0;
         }
 
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
+        /* Badge Stats */
+        .badge {
+            background-color: var(--bg-input);
             border: 1px solid var(--border-thin);
-            border-radius: var(--border-radius);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .stat-label {
+            color: var(--text-muted);
+            font-family: var(--font-mono);
             font-size: 11px;
             font-weight: 500;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .stat-value {
-            font-family: var(--font-mono);
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--text-primary);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 20px;
         }
 
         /* Premium Cards */
@@ -534,16 +515,8 @@
     </header>
 
     <main class="container">
-        <!-- Sidebar Form & Stats -->
+        <!-- Sidebar Form -->
         <aside class="sidebar">
-            <!-- Stats -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <span class="stat-label">Total Keys</span>
-                    <span class="stat-value" id="total-links-count">0</span>
-                </div>
-            </div>
-
             <!-- Form -->
             <div class="card">
                 <h2 class="card-title">
@@ -586,7 +559,8 @@
                         <line x1="3" y1="12" x2="3.01" y2="12"></line>
                         <line x1="3" y1="18" x2="3.01" y2="18"></line>
                     </svg>
-                    Shortlinks
+                    <span>Shortlinks</span>
+                    <span class="badge" id="total-links-count">0</span>
                 </h2>
 
                 <!-- Search container -->
