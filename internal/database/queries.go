@@ -18,9 +18,13 @@ func readQuery(name string) string {
 }
 
 var (
-	queryMigrate           = readQuery("migrate")
-	queryInsertShortlink   = readQuery("insert_link")
-	queryGetShortlinkByKey = readQuery("get_link")
-	queryListShortlinks    = readQuery("list_links")
-	queryDeleteShortlink   = readQuery("delete_link")
+	queryMigrate                 = readQuery("migrate")
+	queryInsertShortlink         = readQuery("insert_link")
+	queryGetShortlinkByKey       = readQuery("get_link")
+	queryListShortlinks          = readQuery("list_links")
+	queryDeleteShortlink         = readQuery("delete_link")
+	queryListFailedScrapes       = readQuery("list_failed_scrapes")
+	queryUpdateSummary           = readQuery("update_summary")
+	queryIncrementScrapeAttempts = readQuery("increment_scrape_attempts")
 )
+

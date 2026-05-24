@@ -1,2 +1,3 @@
-SELECT key, url, domain, summary, created_at FROM links WHERE key = ?;
+SELECT key, url, domain, summary, scrape_attempts, created_at FROM links WHERE key = ?;
+
 
