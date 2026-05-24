@@ -649,7 +649,7 @@
             <div class="card">
                 <h2 class="card-title">
                     <span class="material-symbols-outlined">list</span>
-                    Active Redirection Keys
+                    Shortlinks
                 </h2>
                 
                 <!-- Search container -->
@@ -749,7 +749,8 @@
 
         function renderLinks(links) {
             const items = (links || []).map(link => {
-                const shortUrl = `http://mercury.${link.domain}/${link.key}`;
+                const domain = link.domain.split(':')[0];
+                const shortUrl = `http://mercury.${domain}/${link.key}`;
                 return `
                     <div class="link-item">
                         <div class="link-info">
